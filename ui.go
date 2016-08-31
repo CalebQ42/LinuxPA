@@ -1,7 +1,6 @@
 package main
 
 import (
-	"gxuiCustom"
 	"os"
 	"os/exec"
 	"path"
@@ -16,7 +15,7 @@ var (
 
 func uiMain(dri gxui.Driver) {
 	dr = dri
-	catAdap := &gxuiCustom.StrList{}
+	catAdap := &StrList{}
 	catAdap.SetStrings(cats)
 	appAdap := &prtapAdap{}
 	th := dark.CreateTheme(dr)

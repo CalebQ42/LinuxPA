@@ -22,9 +22,9 @@ func (p *prtapAdap) Count() int {
 func (p *prtapAdap) Create(th gxui.Theme, index int) gxui.Control {
 	box := th.CreateLinearLayout()
 	box.SetDirection(gxui.LeftToRight)
+	//add image support
 	// pic := th.CreateImage()
 	// dr.CreateTexture()
-	//add image support
 	lbl := th.CreateLabel()
 	lbl.SetText(p.apps[index].name)
 	// box.AddChild(pic)

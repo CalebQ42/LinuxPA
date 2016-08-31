@@ -59,8 +59,10 @@ func processApp(fi *os.File) (out prtap) {
 			fmt.Println(fi.Name() + "/App/AppInfo/appinfo.ini")
 			if err == nil {
 				fmt.Println("working!")
-				out.cat = getCat(fild)
-				out.name = getName(fild)
+				out.name = getName(*fild)
+				fild, _ = os.Open(fi.Name() + "/App/AppInfo/appinfo.ini")
+				out.cat = getCat(*fild)
+				fmt.Println("Name:", out.name)
 			}
 		} else if !v.IsDir() {
 			//do os check here
@@ -79,14 +81,15 @@ func processApp(fi *os.File) (out prtap) {
 	return prtap{}
 }
 
-func getCat(fi *os.File) (out string) {
-	rdr := bufio.NewReader(fi)
+func getCat(fi os.File) (out string) {
+	rdr := bufio.NewReader(&fi)
 	var err error
 	var ln []byte
 	for err == nil {
 		ln, _, err = rdr.ReadLine()
 		str := string(ln)
 		if strings.HasPrefix(str, "Category=") {
+			fmt.Println(str)
 			out = strings.TrimPrefix(str, "Category=")
 			return
 		}
@@ -94,13 +97,15 @@ func getCat(fi *os.File) (out string) {
 	return
 }
 
-func getName(fi *os.File) (out string) {
-	rdr := bufio.NewReader(fi)
+func getName(fi os.File) (out string) {
+	rdr := bufio.NewReader(&fi)
 	var err error
 	var ln []byte
 	for err == nil {
 		ln, _, err = rdr.ReadLine()
+
 		str := string(ln)
+		fmt.Println(str)
 		if strings.HasPrefix(str, "Name=") {
 			out = strings.TrimPrefix(str, "Name=")
 			return
