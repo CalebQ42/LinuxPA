@@ -17,5 +17,6 @@ Basically you need go to compile the source, AND YOU ALSO NEED TO MOUNT YOUR FLA
 # TODO
 Add in support to show an app's icon.  
 Add in a common.sh that is executed with each script. (Allows for setting environment variables such as HOME)  
-MAKE IT BETTER
+MAKE IT BETTER  
+Add an open button (I know, I just wanted to get the initial working before making it user friendly)  
 (Maybe)Add an installer.
