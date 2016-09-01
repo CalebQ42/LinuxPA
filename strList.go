@@ -1,9 +1,6 @@
 package main
 
 import (
-	"encoding/gob"
-	"os"
-
 	"github.com/nelsam/gxui"
 	"github.com/nelsam/gxui/math"
 )
@@ -29,34 +26,6 @@ func (s *StrList) Remove(index int) {
 //SetStrings TODO
 func (s *StrList) SetStrings(strs []string) {
 	s.strs = strs
-	s.DataChanged(false)
-}
-
-func (s *StrList) Save(filename string) {
-	os.Remove(filename)
-	fi, err := os.Create(filename)
-	if err != nil {
-		panic(err)
-	}
-	e := gob.NewEncoder(fi)
-	err = e.Encode(s.strs)
-	if err != nil {
-		panic(err)
-	}
-	fi.Close()
-}
-
-func (s *StrList) Load(filename string) {
-	fi, err := os.Open(filename)
-	if err != nil {
-		return
-	}
-	d := gob.NewDecoder(fi)
-	err = d.Decode(&s.strs)
-	if err != nil {
-		panic(err)
-	}
-	fi.Close()
 	s.DataChanged(false)
 }
 

@@ -20,8 +20,11 @@ func uiMain(dri gxui.Driver) {
 	appAdap := &prtapAdap{}
 	th := dark.CreateTheme(dr)
 	win := th.CreateWindow(500, 500, "LinuxPA")
-	top := th.CreateSplitterLayout()
-	top.SetOrientation(gxui.Horizontal)
+	top := th.CreateLinearLayout()
+	top.SetDirection(gxui.BottomToTop)
+	top.SetHorizontalAlignment(gxui.AlignRight)
+	spl := th.CreateSplitterLayout()
+	spl.SetOrientation(gxui.Horizontal)
 	catlist := th.CreateList()
 	catlist.SetAdapter(catAdap)
 	catlist.OnItemClicked(func(_ gxui.MouseEvent, it gxui.AdapterItem) {
@@ -30,16 +33,25 @@ func uiMain(dri gxui.Driver) {
 	})
 	applist := th.CreateList()
 	applist.SetAdapter(appAdap)
-	applist.OnItemClicked(func(_ gxui.MouseEvent, it gxui.AdapterItem) {
-		app := it.(prtap)
-		dir, fi := path.Split(app.ex)
-		cmd := exec.Command("/bin/sh", "-c", "cd \""+dir+"\"; \"./"+fi+"\"")
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Start()
+	spl.AddChild(catlist)
+	spl.AddChild(applist)
+	but := th.CreateLinearLayout()
+	but.SetDirection(gxui.RightToLeft)
+	launch := th.CreateButton()
+	launch.SetText("Launch!")
+	launch.OnClick(func(gxui.MouseEvent) {
+		if appAdap.ItemIndex(applist.Selected()) != -1 {
+			app := applist.Selected().(prtap)
+			dir, fi := path.Split(app.ex)
+			cmd := exec.Command("/bin/sh", "-c", "cd \""+dir+"\"; \"./"+fi+"\"")
+			cmd.Stdin = os.Stdin
+			cmd.Stdout = os.Stdout
+			cmd.Start()
+		}
 	})
-	top.AddChild(catlist)
-	top.AddChild(applist)
+	but.AddChild(launch)
+	top.AddChild(but)
+	top.AddChild(spl)
 	win.AddChild(top)
 	win.OnClose(dr.Terminate)
 }

@@ -2,8 +2,8 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
+	"path"
 	"sort"
 	"strings"
 
@@ -50,46 +50,42 @@ func main() {
 }
 
 func processApp(fi *os.File) (out prtap) {
-	var hasEx bool
-	out.cat = "other"
 	fis, _ := fi.Readdir(-1)
-	for _, v := range fis {
-		if v.IsDir() && v.Name() == "App" {
-			fild, err := os.Open(fi.Name() + "/App/AppInfo/appinfo.ini")
-			fmt.Println(fi.Name() + "/App/AppInfo/appinfo.ini")
-			if err == nil {
-				fmt.Println("working!")
-				out.name = getName(*fild)
-				fild, _ = os.Open(fi.Name() + "/App/AppInfo/appinfo.ini")
-				out.cat = getCat(*fild)
-				fmt.Println("Name:", out.name)
-			}
-		} else if !v.IsDir() {
-			//do os check here
-			if strings.HasSuffix(v.Name(), ".sh") {
-				hasEx = true
-				out.ex = fi.Name() + "/" + v.Name()
-				if out.name == "" {
-					out.name = strings.TrimSuffix(v.Name(), ".sh")
-				}
-			}
-		}
+	if fil, err := os.Open(fi.Name() + "/App/AppInfo/appinfo.ini"); err == nil {
+		out.name = getName(fil)
+		fil, _ = os.Open(fi.Name() + "/App/AppInfo/appinfo.ini")
+		out.cat = getCat(fil)
+	} else if fil, err := os.Open(fi.Name() + "/appinfo.ini"); err == nil {
+		out.name = getName(fil)
+		fil, _ = os.Open(fi.Name() + "/appinfo.ini")
+		out.cat = getCat(fil)
+	} else {
+		out.cat = "other"
 	}
-	if hasEx {
-		return
+	if out.name == "" {
+		out.name = path.Base(fi.Name())
+	}
+	if out.cat == "" {
+		out.cat = "other"
+	}
+	for _, v := range fis {
+		if !v.IsDir() && strings.HasSuffix(v.Name(), ".sh") {
+			//do os check here for possible cross platform support
+			out.ex = fi.Name() + "/" + v.Name()
+			return
+		}
 	}
 	return prtap{}
 }
 
-func getCat(fi os.File) (out string) {
-	rdr := bufio.NewReader(&fi)
+func getCat(fi *os.File) (out string) {
+	rdr := bufio.NewReader(fi)
 	var err error
 	var ln []byte
 	for err == nil {
 		ln, _, err = rdr.ReadLine()
 		str := string(ln)
 		if strings.HasPrefix(str, "Category=") {
-			fmt.Println(str)
 			out = strings.TrimPrefix(str, "Category=")
 			return
 		}
@@ -97,15 +93,13 @@ func getCat(fi os.File) (out string) {
 	return
 }
 
-func getName(fi os.File) (out string) {
-	rdr := bufio.NewReader(&fi)
+func getName(fi *os.File) (out string) {
+	rdr := bufio.NewReader(fi)
 	var err error
 	var ln []byte
 	for err == nil {
 		ln, _, err = rdr.ReadLine()
-
 		str := string(ln)
-		fmt.Println(str)
 		if strings.HasPrefix(str, "Name=") {
 			out = strings.TrimPrefix(str, "Name=")
 			return
