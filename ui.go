@@ -53,5 +53,7 @@ func uiMain(dri gxui.Driver) {
 	top.AddChild(but)
 	top.AddChild(spl)
 	win.AddChild(top)
-	win.OnClose(dr.Terminate)
+	win.OnClose(func() {
+		dr.Terminate()
+	})
 }

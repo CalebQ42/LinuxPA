@@ -18,6 +18,7 @@ Basically you need go to compile the source, AND YOU ALSO NEED TO MOUNT YOUR FLA
 The first place the program looks for an app's icon and info is in the /App/AppInfo directory (icon defaults to appicon_32.png, otherwise it just picks the last one it finds), but if it can't find the appinfo.ini or app icon, it looks in the apps root directory for appinfo.ini and appicon.png for info and icon respectively(Just to make it easier for custom settings in an app).
 
 # TODO
+Add in basic wine capabilities (Wine would have to be on the host system)  
 Add in a common.sh that is executed with each script. (Allows for setting environment variables such as HOME)  
 MAKE IT BETTER  
 Add an open button (I know, I just wanted to get the initial working before making it user friendly)  

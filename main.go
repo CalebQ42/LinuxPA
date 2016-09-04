@@ -19,6 +19,7 @@ type prtap struct {
 	name string
 	cat  string
 	ex   string
+	desc string
 }
 
 func main() {
