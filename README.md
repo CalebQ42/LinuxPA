@@ -17,10 +17,12 @@ Basically you need go to compile the source, AND YOU ALSO NEED TO MOUNT YOUR FLA
 # Format
 The first place the program looks for an app's icon and info is in the /App/AppInfo directory (icon defaults to appicon_32.png, otherwise it just picks the last one it finds), but if it can't find the appinfo.ini or app icon, it looks in the apps root directory for appinfo.ini and appicon.png for info and icon respectively(Just to make it easier for custom settings in an app).
 
-# TODO
-Add in basic wine capabilities (Wine would have to be on the host system)  
-Add in a common.sh that is executed with each script. (Allows for setting environment variables such as HOME)  
-MAKE IT BETTER  
-Add an open button (I know, I just wanted to get the initial working before making it user friendly)  
-Check if all apps are closed when it closes and ask if you want to force stop the apps.  
-(Maybe)Create an installer.
+# TODO (Might be in order)
+1. MAKE IT BETTER  
+1. Improve linux executable detection (so it won't be stuck with .sh files)  
+1. Add in a common.sh that is executed with each script. (Allows for setting environment variables such as HOME)  
+1. Launching of .AppImage files  
+1. Launching of .exe files via wine (wine will have to be installed on the host system, unless there is some portable wine)
+1. Add updater for .AppImage files   
+1. Download .AppImage files  
+1. Check if all apps are closed when it closes and ask if you want to force stop the apps.  
