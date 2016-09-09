@@ -13,6 +13,9 @@ import (
 var (
 	appMaster map[string][]prtap
 	cats      []string
+	conf      *os.File
+	common    string
+	commEnbl  bool
 )
 
 type prtap struct {
@@ -23,8 +26,15 @@ type prtap struct {
 }
 
 func main() {
+	commEnbl = true
 	appMaster = make(map[string][]prtap)
 	os.Mkdir("PortableApps", 0777)
+	os.Mkdir("PortableApps/LinuxPACom", 0777)
+	common = "PortableApps/LinuxPACom/common.sh"
+	_, err := os.Open(common)
+	if os.IsNotExist(err) {
+		commEnbl = false
+	}
 	pa, err := os.Open("PortableApps")
 	if err != nil {
 		panic(err)
@@ -32,7 +42,7 @@ func main() {
 	appstmp, _ := pa.Readdir(-1)
 	var folds []string
 	for _, v := range appstmp {
-		if v.IsDir() {
+		if v.IsDir() && v.Name() != "LinuxPACom" {
 			folds = append(folds, v.Name())
 		}
 	}
@@ -70,7 +80,14 @@ func processApp(fi *os.File) (out prtap) {
 		out.cat = "other"
 	}
 	for _, v := range fis {
-		if !v.IsDir() && strings.HasSuffix(v.Name(), ".sh") {
+		if !v.IsDir() && strings.HasSuffix(strings.ToLower(v.Name()), ".sh") {
+			//do os check here for possible cross platform support
+			out.ex = fi.Name() + "/" + v.Name()
+			return
+		}
+	}
+	for _, v := range fis {
+		if !v.IsDir() && strings.HasSuffix(strings.ToLower(v.Name()), ".appimage") {
 			//do os check here for possible cross platform support
 			out.ex = fi.Name() + "/" + v.Name()
 			return

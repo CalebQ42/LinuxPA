@@ -43,7 +43,12 @@ func uiMain(dri gxui.Driver) {
 		if appAdap.ItemIndex(applist.Selected()) != -1 {
 			app := applist.Selected().(prtap)
 			dir, fi := path.Split(app.ex)
-			cmd := exec.Command("/bin/sh", "-c", "cd \""+dir+"\"; \"./"+fi+"\"")
+			var cmd *exec.Cmd
+			if commEnbl {
+				cmd = exec.Command("/bin/sh", "-c", ". "+common+" || exit 1;cd \""+dir+"\"; \"./"+fi+"\"")
+			} else {
+				cmd = exec.Command("/bin/sh", "-c", "cd \""+dir+"\"; \"./"+fi+"\"")
+			}
 			cmd.Stdin = os.Stdin
 			cmd.Stdout = os.Stdout
 			cmd.Start()
