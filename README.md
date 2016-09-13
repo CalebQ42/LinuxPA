@@ -4,14 +4,14 @@ LinuxPA is a try to bring a [PortableApps.com](http://portableapps.com) type lau
 # App Detection
 LinuxPA looks in all folders in the PortableApps folder for, first, a script file (starts with the shebang (`#!`)) and, secondly, a native linux executable (starts with ELF). It will only add the first one it finds.  
 
-# PortableApps.com Compatability
+# PortableApps.com Compatibility
 LinuxPA works will with the PortableApps.com launcher, as it looks for apps in the PortableApps folder and grabs the app's name and icon from where it should be in the PortableApps.com format.  
 
 # common.sh
 common.sh is found in the PortableApps/LinuxPACom folder and is executed before the app. I mainly use it to set environment variables (such as HOME).  
 
 # Simple App Setup
-Because apps aren't natively formated in the PortableApps.com format, if LinuxPA doesn't find the AppInfo.ini or appicon_\*.png in the App/AppInfo folder of the app it looks for them in the root direcory of the app (except it looks, nor for appicon_\*.png, but appicon.png)  
+Because apps aren't natively formated in the PortableApps.com format, if LinuxPA doesn't find the AppInfo.ini or appicon_\*.png in the App/AppInfo folder of the app it looks for them in the root directory of the app (except it looks, nor for appicon_\*.png, but appicon.png). If an AppInfo.ini file isn't found then the name of the app is grabbed from the folder name and it's category is set to other. It specifically looks for the lines starting with `Name=` and `Category=`  
 
 # AppImage Support
 [AppImage Website](http://appimage.org)  
