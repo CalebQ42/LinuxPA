@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"path"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -79,18 +80,40 @@ func processApp(fi *os.File) (out prtap) {
 	if out.cat == "" {
 		out.cat = "other"
 	}
+	//executable detection
+	wd, _ := os.Getwd()
+	var rdr *bufio.Reader
 	for _, v := range fis {
-		if !v.IsDir() && strings.HasSuffix(strings.ToLower(v.Name()), ".sh") {
-			//do os check here for possible cross platform support
-			out.ex = fi.Name() + "/" + v.Name()
-			return
+		fil, err := os.Open(wd + "/" + fi.Name() + "/" + v.Name())
+		if err == nil {
+			stat, _ := fil.Stat()
+			if !stat.IsDir() {
+				rdr = bufio.NewReader(fil)
+				shebang := []byte{'#', '!'}
+				two := make([]byte, 2)
+				rdr.Read(two)
+				if reflect.DeepEqual(shebang, two) {
+					out.ex = wd + "/" + fi.Name() + "/" + v.Name()
+					rdr.Reset(fil)
+					return
+				}
+			}
 		}
 	}
 	for _, v := range fis {
-		if !v.IsDir() && strings.HasSuffix(strings.ToLower(v.Name()), ".appimage") {
-			//do os check here for possible cross platform support
-			out.ex = fi.Name() + "/" + v.Name()
-			return
+		fil, err := os.Open(wd + "/" + fi.Name() + "/" + v.Name())
+		if err == nil {
+			stat, _ := fil.Stat()
+			if !stat.IsDir() {
+				rdr = bufio.NewReader(fil)
+				thr := make([]byte, 4)
+				rdr.Read(thr)
+				if strings.Contains(string(thr), "ELF") {
+					out.ex = wd + "/" + fi.Name() + "/" + v.Name()
+					rdr.Reset(fil)
+					return
+				}
+			}
 		}
 	}
 	return prtap{}
