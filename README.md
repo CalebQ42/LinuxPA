@@ -14,7 +14,7 @@ common.sh is found in the PortableApps/LinuxPACom folder and is executed before 
 Because apps aren't natively formated in the PortableApps.com format, if LinuxPA doesn't find the AppInfo.ini or appicon_*.png in the App/AppInfo folder of the app it looks for them in the root direcory of the app (except it looks, nor for appicon_*.png, but appicon.png)  
 
 # AppImage Support
-[AppImage Website](http://appimage.com)  
+[AppImage Website](http://appimage.org)  
 Right now AppImages are simply supported via the native linux executable support, but later I'm hoping to add downloading and automatic downloading support.  
 
 # USB mount
