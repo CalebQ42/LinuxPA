@@ -1,32 +1,32 @@
 # LinuxPA
-The goal is to create a fully functional PortableApps.com type launcher that can properly parse data from the PortableApps.com format. Apps are launched by a .sh file in the app's directory. Currently pulls out the Name and Category from App/AppInfo/appinfo.ini  
-I'm trying to make it work well with [AppImages](http://appimage.org/).
+LinuxPA is a try to bring a PortableApps.com type launcher to Linux.  
 
-# Why?
-I know that Linux only has about 2% desktop usage and I know that the traditional way to install apps isn't portable, but over the past year or so I've started to put linux apps on my flash drive (AppImage is a great example of a portable solution to linux apps. Also a lot of DRM-free games can be run portably), but there was no easy way to organize my linux apps, so I created one. I personally have used the PortableApps.com launcher for years now and I love how properly formated the apps are, which allows me to grab info about the app easily.  
+# App Detection
+LinuxPA looks in all folders in the PortableApps folder for, first, a script file (starts with the shebang (`#!`)) and, secondly, a native linux executable (starts with ELF). It will only add the first one it finds.  
 
-# Why Go?
-Because I like Go :) Also the way it includes all it needs into one friendly executable.
-
-# What is needed?
-Basically you need go to compile the source, AND YOU ALSO NEED TO MOUNT YOUR FLASH DRIVE SO YOU CAN EXECUTE FILES ON IT!!!! I've found that the mount arguments of `exec,noauto,nodev,nosuid,umask=0000` works well (I personally put my flash drive into /etc/fstab).
-
-# Format
-The first place the program looks for an app's icon and info is in the /App/AppInfo directory (icon defaults to appicon_32.png, otherwise it just picks the last one it finds), but if it can't find the appinfo.ini or app icon, it looks in the apps root directory for appinfo.ini and appicon.png for info and icon respectively(Just to make it easier for custom settings in an app).
+# PortableApps.com Compatability
+LinuxPA works will with the PortableApps.com launcher, as it looks for apps in the PortableApps folder and grabs the app's name and icon from where it should be in the PortableApps.com format.  
 
 # common.sh
-common.sh is run before any program so you can set environment variables (such as HOME). common.sh should be in PortableApps/LinuxPACom folder. Paths should be made relitive to where LinuxPA is.
+common.sh is found in the PortableApps/LinuxPACom folder and is executed before the app. I mainly use it to set environment variables (such as HOME).  
 
-# Executable search
-For a given app, it tried to look for script files (looks for the file to start with `#!`) and then looks for standard executable files (looks for the file to start with `ELF`)
+# Simple App Setup
+Because apps aren't natively formated in the PortableApps.com format, if LinuxPA doesn't find the AppInfo.ini or appicon_*.png in the App/AppInfo folder of the app it looks for them in the root direcory of the app (except it looks, nor for appicon_*.png, but appicon.png)  
+
+# AppImage Support
+[AppImage Website](http://appimage.com)  
+Right now AppImages are simply supported via the native linux executable support, but later I'm hoping to add downloading and automatic downloading support.  
+
+# USB mount
+Unfortunately Linux, by default, doesn't support running executables off of flash drives, requiring you to mount your drive with special mount arguments, I personally use the arguments `exec,noauto,nodev,nosuid,umask=0000`  
 
 # Screenshots
 Photos are found [Here](https://goo.gl/photos/VtBUL6DyZTMidj5n6)
 
 # TODO (Might be in order)
-1. MAKE IT BETTER   
-1. Launching of .exe files via wine (wine will have to be installed on the host system, unless there is some portable wine, I may have found one)  
+1. MAKE IT BETTER  
+1. Launching of .exe files via wine (wine will have to be installed on the host system, unless there is some portable wine (I may have found one))  
 1. Add settings menu  
-1. Add updater for .AppImage files   
+1. Add updater for .AppImage files  
 1. Download .AppImage files (maybe)  
 1. Check if all apps are closed when it closes and ask if you want to force stop the apps.  
