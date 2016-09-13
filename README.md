@@ -1,5 +1,5 @@
 # LinuxPA
-LinuxPA is a try to bring a PortableApps.com type launcher to Linux.  
+LinuxPA is a try to bring a [PortableApps.com](http://portableapps.com) type launcher to Linux.  
 
 # App Detection
 LinuxPA looks in all folders in the PortableApps folder for, first, a script file (starts with the shebang (`#!`)) and, secondly, a native linux executable (starts with ELF). It will only add the first one it finds.  
