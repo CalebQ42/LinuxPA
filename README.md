@@ -11,7 +11,7 @@ LinuxPA works will with the PortableApps.com launcher, as it looks for apps in t
 common.sh is found in the PortableApps/LinuxPACom folder and is executed before the app. I mainly use it to set environment variables (such as HOME).  
 
 # Simple App Setup
-Because apps aren't natively formated in the PortableApps.com format, if LinuxPA doesn't find the AppInfo.ini or appicon_*.png in the App/AppInfo folder of the app it looks for them in the root direcory of the app (except it looks, nor for appicon_*.png, but appicon.png)  
+Because apps aren't natively formated in the PortableApps.com format, if LinuxPA doesn't find the AppInfo.ini or appicon_\*.png in the App/AppInfo folder of the app it looks for them in the root direcory of the app (except it looks, nor for appicon_\*.png, but appicon.png)  
 
 # AppImage Support
 [AppImage Website](http://appimage.org)  
