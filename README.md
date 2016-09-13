@@ -15,7 +15,7 @@ Because apps aren't natively formated in the PortableApps.com format, if LinuxPA
 
 # AppImage Support
 [AppImage Website](http://appimage.org)  
-Right now AppImages are simply supported via the native linux executable support, but later I'm hoping to add downloading and automatic downloading support.  
+Right now AppImages are simply supported via the native linux executable support, but later I'm hoping to add downloading and automatic updating support.  
 
 # USB mount
 Unfortunately Linux, by default, doesn't support running executables off of flash drives, requiring you to mount your drive with special mount arguments, I personally use the arguments `exec,noauto,nodev,nosuid,umask=0000`  
