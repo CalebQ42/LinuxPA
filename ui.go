@@ -51,7 +51,8 @@ func uiMain(dri gxui.Driver) {
 			}
 			cmd.Stdin = os.Stdin
 			cmd.Stdout = os.Stdout
-			cmd.Start()
+			cmd.Stderr = os.Stderr
+			go cmd.Run()
 		}
 	})
 	but.AddChild(launch)
