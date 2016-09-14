@@ -15,16 +15,39 @@ import (
 
 type prtapAdap struct {
 	gxui.AdapterBase
-	apps []prtap
+	wine   bool
+	master []prtap
+	cur    []prtap
 }
 
 func (p *prtapAdap) SetApps(apps []prtap) {
-	p.apps = apps
+	p.master = apps
+	if p.wine {
+		p.cur = p.master
+	} else {
+		p.cur = make([]prtap, 0)
+		for _, v := range p.master {
+			p.cur = append(p.cur, v)
+		}
+	}
 	p.DataChanged(false)
 }
 
 func (p *prtapAdap) Count() int {
-	return len(p.apps)
+	return len(p.cur)
+}
+
+func (p *prtapAdap) Wine(show bool) {
+	p.wine = show
+	if show {
+		p.cur = p.master
+	} else {
+		p.cur = make([]prtap, 0)
+		for _, v := range p.master {
+			p.cur = append(p.cur, v)
+		}
+	}
+	p.DataChanged(false)
 }
 
 func (p *prtapAdap) Create(th gxui.Theme, index int) gxui.Control {
@@ -32,7 +55,7 @@ func (p *prtapAdap) Create(th gxui.Theme, index int) gxui.Control {
 	box.SetPadding(math.CreateSpacing(2))
 	box.SetDirection(gxui.LeftToRight)
 	box.SetVerticalAlignment(gxui.AlignMiddle)
-	dir := path.Dir(p.apps[index].ex)
+	dir := path.Dir(p.cur[index].ex)
 	if fold, err := os.Open(dir + "/App/AppInfo"); err == nil {
 		var pics []string
 		fi, _ := fold.Readdirnames(-1)
@@ -76,13 +99,13 @@ func (p *prtapAdap) Create(th gxui.Theme, index int) gxui.Control {
 		box.AddChild(icon)
 	}
 	lbl := th.CreateLabel()
-	lbl.SetText(p.apps[index].name)
+	lbl.SetText(p.cur[index].name)
 	box.AddChild(lbl)
 	return box
 }
 
 func (p *prtapAdap) ItemAt(index int) gxui.AdapterItem {
-	return p.apps[index]
+	return p.cur[index]
 }
 
 func (p *prtapAdap) ItemIndex(item gxui.AdapterItem) int {
@@ -90,7 +113,7 @@ func (p *prtapAdap) ItemIndex(item gxui.AdapterItem) int {
 	if !ok {
 		return -1
 	}
-	for i, v := range p.apps {
+	for i, v := range p.cur {
 		if v == it {
 			return i
 		}

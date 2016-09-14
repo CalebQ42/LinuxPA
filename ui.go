@@ -44,17 +44,33 @@ func uiMain(dri gxui.Driver) {
 			app := applist.Selected().(prtap)
 			dir, fi := path.Split(app.ex)
 			var cmd *exec.Cmd
-			if commEnbl {
-				cmd = exec.Command("/bin/sh", "-c", ". "+common+" || exit 1;cd \""+dir+"\"; \"./"+fi+"\"")
+			if app.wine {
+				cmd = exec.Command("/bin/sh", "-c", "cd \""+dir+"\"; wine \""+fi+"\"")
 			} else {
-				cmd = exec.Command("/bin/sh", "-c", "cd \""+dir+"\"; \"./"+fi+"\"")
+				if commEnbl {
+					cmd = exec.Command("/bin/sh", "-c", ". "+common+" || exit 1;cd \""+dir+"\"; \"./"+fi+"\"")
+				} else {
+					cmd = exec.Command("/bin/sh", "-c", "cd \""+dir+"\"; \"./"+fi+"\"")
+				}
 			}
 			cmd.Stdin = os.Stdin
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			go cmd.Run()
+			cmd.Start()
 		}
 	})
+	wine := th.CreateButton()
+	wine.SetType(gxui.ToggleButton)
+	wine.OnClick(func(gxui.MouseEvent) {
+		if wine.IsChecked() {
+			appAdap.Wine(true)
+		} else {
+			appAdap.Wine(false)
+		}
+	})
+	wine.SetText("Show Windows apps")
+	wine.SetChecked(appAdap.wine)
+	but.AddChild(wine)
 	but.AddChild(launch)
 	top.AddChild(but)
 	top.AddChild(spl)

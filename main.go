@@ -24,6 +24,7 @@ type prtap struct {
 	cat  string
 	ex   string
 	desc string
+	wine bool
 }
 
 func main() {
@@ -113,6 +114,18 @@ func processApp(fi *os.File) (out prtap) {
 					rdr.Reset(fil)
 					return
 				}
+			}
+		}
+	}
+	for _, v := range fis {
+		fil, err := os.Open(wd + "/" + fi.Name() + "/" + v.Name())
+		if err == nil {
+			stat, _ := fil.Stat()
+			if !stat.IsDir() && strings.HasSuffix(stat.Name(), "exe") {
+				out.wine = true
+				out.ex = wd + "/" + fi.Name() + "/" + v.Name()
+				out.name += " (Wine)"
+				return
 			}
 		}
 	}
