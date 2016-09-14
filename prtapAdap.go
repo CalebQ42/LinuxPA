@@ -27,7 +27,9 @@ func (p *prtapAdap) SetApps(apps []prtap) {
 	} else {
 		p.cur = make([]prtap, 0)
 		for _, v := range p.master {
-			p.cur = append(p.cur, v)
+			if !v.wine {
+				p.cur = append(p.cur, v)
+			}
 		}
 	}
 	p.DataChanged(false)
@@ -44,7 +46,9 @@ func (p *prtapAdap) Wine(show bool) {
 	} else {
 		p.cur = make([]prtap, 0)
 		for _, v := range p.master {
-			p.cur = append(p.cur, v)
+			if !v.wine {
+				p.cur = append(p.cur, v)
+			}
 		}
 	}
 	p.DataChanged(false)

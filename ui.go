@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path"
@@ -16,8 +17,9 @@ var (
 func uiMain(dri gxui.Driver) {
 	dr = dri
 	catAdap := &StrList{}
-	catAdap.SetStrings(cats)
+	catAdap.SetStrings(linOnly)
 	appAdap := &prtapAdap{}
+	appAdap.Wine(false)
 	th := dark.CreateTheme(dr)
 	win := th.CreateWindow(500, 500, "LinuxPA")
 	top := th.CreateLinearLayout()
@@ -59,18 +61,25 @@ func uiMain(dri gxui.Driver) {
 			cmd.Start()
 		}
 	})
-	wine := th.CreateButton()
-	wine.SetType(gxui.ToggleButton)
-	wine.OnClick(func(gxui.MouseEvent) {
-		if wine.IsChecked() {
-			appAdap.Wine(true)
-		} else {
-			appAdap.Wine(false)
-		}
-	})
-	wine.SetText("Show Windows apps")
-	wine.SetChecked(appAdap.wine)
-	but.AddChild(wine)
+	if _, err := exec.LookPath("wine"); err == nil {
+		fmt.Println("Wine found!")
+		wine := th.CreateButton()
+		wine.SetType(gxui.ToggleButton)
+		wine.OnClick(func(gxui.MouseEvent) {
+			if wine.IsChecked() {
+				catAdap.SetStrings(cats)
+				appAdap.Wine(true)
+			} else {
+				catAdap.SetStrings(linOnly)
+				appAdap.Wine(false)
+			}
+		})
+		wine.SetText("Show Windows Apps")
+		wine.SetChecked(appAdap.wine)
+		but.AddChild(wine)
+	} else {
+		fmt.Println("Wine not found!")
+	}
 	but.AddChild(launch)
 	top.AddChild(but)
 	top.AddChild(spl)

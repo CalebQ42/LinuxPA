@@ -14,6 +14,8 @@ import (
 var (
 	appMaster map[string][]prtap
 	cats      []string
+	wineOnly  []string
+	linOnly   []string
 	conf      *os.File
 	common    string
 	commEnbl  bool
@@ -44,7 +46,7 @@ func main() {
 	appstmp, _ := pa.Readdir(-1)
 	var folds []string
 	for _, v := range appstmp {
-		if v.IsDir() && v.Name() != "LinuxPACom" {
+		if v.IsDir() && v.Name() != "LinuxPACom" && v.Name() != "PortableApps.com" {
 			folds = append(folds, v.Name())
 		}
 	}
@@ -54,11 +56,29 @@ func main() {
 		pat := processApp(fi)
 		if (pat != prtap{}) {
 			if _, ok := appMaster[pat.cat]; !ok {
-				cats = append(cats, pat.cat)
+				if pat.wine {
+					wineOnly = append(wineOnly, pat.cat)
+					cats = append(cats, pat.cat)
+				} else {
+					linOnly = append(linOnly, pat.cat)
+					cats = append(cats, pat.cat)
+				}
+			} else {
+				if !pat.wine {
+					for i, v := range wineOnly {
+						if pat.cat == v {
+							wineOnly = append(wineOnly[:i], wineOnly[i+1:]...)
+							break
+						}
+					}
+				}
 			}
 			appMaster[pat.cat] = append(appMaster[pat.cat], pat)
 		}
 	}
+	sort.Strings(linOnly)
+	sort.Strings(wineOnly)
+	sort.Strings(cats)
 	gl.StartDriver(uiMain)
 }
 
@@ -73,13 +93,13 @@ func processApp(fi *os.File) (out prtap) {
 		fil, _ = os.Open(fi.Name() + "/appinfo.ini")
 		out.cat = getCat(fil)
 	} else {
-		out.cat = "other"
+		out.cat = "Other"
 	}
 	if out.name == "" {
 		out.name = path.Base(fi.Name())
 	}
 	if out.cat == "" {
-		out.cat = "other"
+		out.cat = "Other"
 	}
 	//executable detection
 	wd, _ := os.Getwd()

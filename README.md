@@ -25,7 +25,6 @@ Photos are found [Here](https://goo.gl/photos/VtBUL6DyZTMidj5n6)
 
 # TODO (Might be in order)
 1. MAKE IT BETTER  
-1. Launching of .exe files via wine (wine will have to be installed on the host system, unless there is some portable wine (I may have found one))  
 1. Add settings menu  
 1. Add updater for .AppImage files  
 1. Download .AppImage files (maybe)  
