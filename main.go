@@ -68,6 +68,7 @@ func main() {
 					for i, v := range wineOnly {
 						if pat.cat == v {
 							wineOnly = append(wineOnly[:i], wineOnly[i+1:]...)
+							linOnly = append(linOnly, pat.cat)
 							break
 						}
 					}
