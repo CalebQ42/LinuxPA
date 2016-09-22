@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/nelsam/gxui"
 	"github.com/nelsam/gxui/drivers/gl"
 	"github.com/nelsam/gxui/themes/dark"
@@ -18,6 +20,10 @@ var (
 )
 
 func main() {
+	_, err := os.Open("PortableApps/LinuxPACom/common.sh")
+	if err == nil {
+		comEnbld = true
+	}
 	master = make(map[string][]app)
 	linmaster = make(map[string][]app)
 	gl.StartDriver(appMain)

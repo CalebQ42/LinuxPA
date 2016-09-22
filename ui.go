@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"os/exec"
 
 	"github.com/nelsam/gxui"
@@ -44,6 +45,18 @@ func ui() {
 				wineBut.SetText("Show Windows Apps")
 			}
 		})
+		_, err := os.Open("Start.exe")
+		if err == nil {
+			pa := th.CreateButton()
+			pa.SetText("Open PortableApps Launcher")
+			pa.OnClick(func(gxui.MouseEvent) {
+				cmd := exec.Command("wine", "Start.exe")
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+				cmd.Start()
+			})
+			butBox.AddChild(pa)
+		}
 		butBox.AddChild(wineBut)
 	}
 	top.AddChild(butBox)
