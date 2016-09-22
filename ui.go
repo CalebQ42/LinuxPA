@@ -10,7 +10,7 @@ func ui() {
 	catListAdap := &StrList{}
 	appListAdap := &catAdap{}
 	catListAdap.SetStrings(lin)
-	win := th.CreateWindow(600, 500, "LinuxPA")
+	win := th.CreateWindow(500, 500, "LinuxPA")
 	top := th.CreateLinearLayout()
 	top.SetDirection(gxui.BottomToTop)
 	splBox := th.CreateLinearLayout()

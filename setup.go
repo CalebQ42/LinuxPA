@@ -159,11 +159,17 @@ func getIcon(fold string) gxui.Texture {
 }
 
 func findInfo(fold string) *os.File {
-	if fi, err := os.Open(fold + "/App/AppInfo/appinfo.ini"); err == nil {
-		return fi
-	} else if fi, err := os.Open(fold + "/App/AppInfo/AppInfo.ini"); err == nil {
-		return fi
-	} else if fi, err := os.Open(fold + "/appinfo.ini"); err == nil {
+	tmp, err := os.Open(fold + "/App/AppInfo")
+	if err == nil {
+		fis, _ := tmp.Readdirnames(-1)
+		for _, v := range fis {
+			if strings.ToLower(v) == "appinfo.ini" {
+				tmp, _ := os.Open(fold + "/App/AppInfo/" + v)
+				return tmp
+			}
+		}
+	}
+	if fi, err := os.Open(fold + "/appinfo.ini"); err == nil {
 		return fi
 	}
 	return nil
