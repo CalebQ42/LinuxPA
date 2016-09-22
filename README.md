@@ -1,8 +1,8 @@
 # LinuxPA
 LinuxPA is a try to bring a [PortableApps.com](http://portableapps.com) type launcher to Linux.  
 
-# App Detection
-LinuxPA looks in all folders in the PortableApps folder for, first, a script file (starts with the shebang (`#!`)) and, secondly, a native linux executable (starts with ELF). It will only add the first one it finds.  
+# How to use
+Just double click on an app to launch it! If there are multiple executables, you can either select the specific executable, or if you just double click the app it'll launch the first linux executable, but if one isn't found it launches the first executable in general.
 
 # PortableApps.com Compatibility
 LinuxPA works will with the PortableApps.com launcher, as it looks for apps in the PortableApps folder and grabs the app's name and icon from where it should be in the PortableApps.com format.  
@@ -15,7 +15,7 @@ Because apps aren't natively formated in the PortableApps.com format, if LinuxPA
 
 # AppImage Support
 [AppImage Website](http://appimage.org)  
-Right now AppImages are simply supported via the native linux executable support, but later I'm hoping to add downloading and automatic updating support.  
+Right now AppImages are simply supported via the native linux executable support, but later I'm hoping to add downloading and automatic updating support later on.  
 
 # USB mount
 Unfortunately Linux, by default, doesn't support running executables off of flash drives, requiring you to mount your drive with special mount arguments, I personally use the arguments `exec,noauto,nodev,nosuid,umask=0000`  

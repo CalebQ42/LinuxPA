@@ -1,90 +1,53 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"os/exec"
-	"path"
 
 	"github.com/nelsam/gxui"
-	"github.com/nelsam/gxui/themes/dark"
 )
 
-var (
-	dr gxui.Driver
-)
-
-func uiMain(dri gxui.Driver) {
-	dr = dri
-	catAdap := &StrList{}
-	catAdap.SetStrings(linOnly)
-	appAdap := &prtapAdap{}
-	appAdap.Wine(false)
-	th := dark.CreateTheme(dr)
-	win := th.CreateWindow(500, 500, "LinuxPA")
+func ui() {
+	catListAdap := &StrList{}
+	appListAdap := &catAdap{}
+	catListAdap.SetStrings(lin)
+	win := th.CreateWindow(600, 500, "LinuxPA")
 	top := th.CreateLinearLayout()
 	top.SetDirection(gxui.BottomToTop)
-	top.SetHorizontalAlignment(gxui.AlignRight)
+	splBox := th.CreateLinearLayout()
 	spl := th.CreateSplitterLayout()
 	spl.SetOrientation(gxui.Horizontal)
-	catlist := th.CreateList()
-	catlist.SetAdapter(catAdap)
-	catlist.OnItemClicked(func(_ gxui.MouseEvent, it gxui.AdapterItem) {
-		str := it.(string)
-		appAdap.SetApps(appMaster[str])
+	catList := th.CreateList()
+	catList.SetAdapter(catListAdap)
+	catList.OnSelectionChanged(func(it gxui.AdapterItem) {
+		appListAdap.setCat(it.(string))
 	})
-	applist := th.CreateList()
-	applist.SetAdapter(appAdap)
-	spl.AddChild(catlist)
-	spl.AddChild(applist)
-	but := th.CreateLinearLayout()
-	but.SetDirection(gxui.RightToLeft)
-	launch := th.CreateButton()
-	launch.SetText("Launch!")
-	launch.OnClick(func(gxui.MouseEvent) {
-		if appAdap.ItemIndex(applist.Selected()) != -1 {
-			app := applist.Selected().(prtap)
-			dir, fi := path.Split(app.ex)
-			var cmd *exec.Cmd
-			if app.wine {
-				cmd = exec.Command("/bin/sh", "-c", "cd \""+dir+"\"; wine \""+fi+"\"")
-			} else {
-				if commEnbl {
-					cmd = exec.Command("/bin/sh", "-c", ". "+common+" || exit 1;cd \""+dir+"\"; \"./"+fi+"\"")
-				} else {
-					cmd = exec.Command("/bin/sh", "-c", "cd \""+dir+"\"; \"./"+fi+"\"")
-				}
-			}
-			cmd.Stdin = os.Stdin
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			cmd.Start()
-		}
-	})
+	appList := th.CreateTree()
+	appList.SetAdapter(appListAdap)
+	spl.AddChild(catList)
+	spl.AddChild(appList)
+	splBox.AddChild(spl)
+	butBox := th.CreateLinearLayout()
+	butBox.SetDirection(gxui.LeftToRight)
 	if _, err := exec.LookPath("wine"); err == nil {
-		fmt.Println("Wine found!")
-		wine := th.CreateButton()
-		wine.SetType(gxui.ToggleButton)
-		wine.OnClick(func(gxui.MouseEvent) {
-			if wine.IsChecked() {
-				catAdap.SetStrings(cats)
-				appAdap.Wine(true)
+		wineBut := th.CreateButton()
+		wineBut.SetType(gxui.ToggleButton)
+		wineBut.SetChecked(wine)
+		wineBut.SetText("Show Windows Apps")
+		wineBut.OnClick(func(gxui.MouseEvent) {
+			wine = wineBut.IsChecked()
+			appListAdap.refresh()
+			if wineBut.IsChecked() {
+				catListAdap.SetStrings(cats)
+				wineBut.SetText("Hide Windows Apps")
 			} else {
-				catAdap.SetStrings(linOnly)
-				appAdap.Wine(false)
+				catListAdap.SetStrings(lin)
+				wineBut.SetText("Show Windows Apps")
 			}
 		})
-		wine.SetText("Show Windows Apps")
-		wine.SetChecked(appAdap.wine)
-		but.AddChild(wine)
-	} else {
-		fmt.Println("Wine not found!")
+		butBox.AddChild(wineBut)
 	}
-	but.AddChild(launch)
-	top.AddChild(but)
-	top.AddChild(spl)
+	top.AddChild(butBox)
+	top.AddChild(splBox)
 	win.AddChild(top)
-	win.OnClose(func() {
-		dr.Terminate()
-	})
+	win.OnClose(dr.Terminate)
 }
