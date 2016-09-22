@@ -22,7 +22,7 @@ func setup() {
 	sort.Strings(PAFolds)
 	for _, v := range PAFolds {
 		fold, _ := os.Open("PortableApps/" + v)
-		if stat, _ := fold.Stat(); stat.IsDir() {
+		if stat, _ := fold.Stat(); stat.IsDir() && stat.Name() != "PortableApps.com" && stat.Name() != "LinuxPACom" {
 			ap := processApp("PortableApps/" + v)
 			if !reflect.DeepEqual(ap, app{}) {
 				if _, ok := master[ap.cat]; !ok {
@@ -160,6 +160,8 @@ func getIcon(fold string) gxui.Texture {
 
 func findInfo(fold string) *os.File {
 	if fi, err := os.Open(fold + "/App/AppInfo/appinfo.ini"); err == nil {
+		return fi
+	} else if fi, err := os.Open(fold + "/App/AppInfo/AppInfo.ini"); err == nil {
 		return fi
 	} else if fi, err := os.Open(fold + "/appinfo.ini"); err == nil {
 		return fi
