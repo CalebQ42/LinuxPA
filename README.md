@@ -2,10 +2,16 @@
 LinuxPA is a try to bring a [PortableApps.com](http://portableapps.com) type launcher to Linux.  
 
 # How to use
-Just double click on an app to launch it! If there are multiple executables, you can either select the specific executable, or if you just double click the app it'll launch the first linux executable, but if one isn't found it launches the first executable in general.
+Just double click on an app to launch it! If there are multiple executables, you can either select the specific executable, or if you just double click the app it'll launch the first linux executable (.sh script files have priority), but if one isn't found it launches the first executable in general.
+
+# Apps:
+Both of the below places provide linux executables that don't need libs installed on the host system:  
+[AppImage](https://bintray.com/probono/AppImages)  
+<s>[Orbital-Apps](https://www.orbital-apps.com/blog/2016/introducing-universal-orbs)</s> (Only works if the Orb-Launcher is installed on the system, for some reason. [Issue](https://github.com/CalebQ42/LinuxPA/issues/3))
 
 # PortableApps.com Compatibility
 LinuxPA works will with the PortableApps.com launcher, as it looks for apps in the PortableApps folder and grabs the app's name and icon from where it should be in the PortableApps.com format.  
+My forum at PortableApps.com can be found [here](http://portableapps.com/node/54998).  
 
 # common.sh
 common.sh is found in the PortableApps/LinuxPACom folder and is executed before the app. I mainly use it to set environment variables (such as HOME).  

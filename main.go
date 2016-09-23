@@ -35,3 +35,12 @@ func appMain(dri gxui.Driver) {
 	setup()
 	ui()
 }
+
+func contains(arr []string, str string) bool {
+	for _, v := range arr {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}

@@ -28,23 +28,17 @@ func setup() {
 				if _, ok := master[ap.cat]; !ok {
 					cats = append(cats, ap.cat)
 					sort.Strings(cats)
-					if len(ap.lin) != 0 {
+				}
+				if len(ap.lin) != 0 {
+					if _, ok := linmaster[ap.cat]; !ok {
 						lin = append(lin, ap.cat)
 						sort.Strings(lin)
 					}
-				} else {
-					if len(ap.lin) != 0 {
-						ind := sort.SearchStrings(lin, ap.cat)
-						if ind == len(lin) {
-							lin = append(lin, ap.cat)
-							sort.Strings(lin)
-						}
-					}
 				}
+				master[ap.cat] = append(master[ap.cat], ap)
 				if len(ap.lin) != 0 {
 					linmaster[ap.cat] = append(linmaster[ap.cat], ap)
 				}
-				master[ap.cat] = append(master[ap.cat], ap)
 			}
 		}
 	}
@@ -84,7 +78,7 @@ func processApp(fold string) (out app) {
 			btys := make([]byte, 4)
 			rdr := bufio.NewReader(tmp)
 			rdr.Read(btys)
-			if strings.HasPrefix(strings.ToLower(string(btys)), "ELF") || strings.HasPrefix(strings.ToLower(string(btys)), "#!") {
+			if (strings.Contains(strings.ToLower(string(btys)), "elf") && !strings.HasSuffix(strings.ToLower(v), ".so")) || strings.HasPrefix(strings.ToLower(string(btys)), "#!") {
 				out.ex = append(out.ex, v)
 				out.lin = append(out.lin, v)
 			}
@@ -137,9 +131,11 @@ func getIcon(fold string) gxui.Texture {
 		}
 		sort.Strings(pics)
 		if len(pics) > 1 {
-			ind := sort.SearchStrings(pics, "appicon_32.png")
-			if ind == len(pics) {
-				ind--
+			var ind int
+			if !contains(pics, "appicon_32.png") {
+				ind = len(pics) - 1
+			} else {
+				ind = sort.SearchStrings(pics, "appicon_32.png")
 			}
 			pic, _ = os.Open(fold + "/App/AppInfo/" + pics[ind])
 		}

@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 	"os/exec"
-	"sort"
+	"strings"
 
 	"github.com/nelsam/gxui"
 	"github.com/nelsam/gxui/math"
@@ -28,7 +28,7 @@ type appExNode struct {
 func (a *appExNode) launch() {
 	if wine {
 		var cmd *exec.Cmd
-		if ind := sort.SearchStrings(a.ap.lin, a.ap.ex[a.exInd]); ind == len(a.ap.lin) {
+		if !contains(a.ap.lin, a.ap.ex[a.exInd]) {
 			cmd = exec.Command("/bin/sh", "-c", "cd \""+a.ap.dir+"\"; wine \""+a.ap.ex[a.exInd]+"\"")
 		} else {
 			if comEnbld {
@@ -93,11 +93,10 @@ type appNode struct {
 }
 
 func (a *appNode) launch() {
-
 	if len(a.ap.ex) == 1 {
 		if wine {
 			var cmd *exec.Cmd
-			if ind := sort.SearchStrings(a.ap.lin, a.ap.ex[0]); ind == len(a.ap.lin) {
+			if !contains(a.ap.lin, a.ap.ex[0]) {
 				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.ap.dir+"\"; wine \""+a.ap.ex[0]+"\"")
 			} else {
 				if comEnbld {
@@ -126,10 +125,17 @@ func (a *appNode) launch() {
 			if len(a.ap.lin) == 0 {
 				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.ap.dir+"\"; wine \""+a.ap.ex[0]+"\"")
 			} else {
+				var ind int
+				for i, v := range a.ap.lin {
+					if strings.HasSuffix(v, ".sh") {
+						ind = i
+						break
+					}
+				}
 				if comEnbld {
-					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.ap.dir+"\"; \"./"+a.ap.lin[0]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.ap.dir+"\"; \"./"+a.ap.lin[ind]+"\"")
 				} else {
-					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.ap.dir+"\"; \"./"+a.ap.lin[0]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.ap.dir+"\"; \"./"+a.ap.lin[ind]+"\"")
 				}
 			}
 			cmd.Stdout = os.Stdout
@@ -137,11 +143,18 @@ func (a *appNode) launch() {
 			cmd.Start()
 		} else {
 			if len(a.ap.lin) != 0 {
+				var ind int
+				for i, v := range a.ap.lin {
+					if strings.HasSuffix(v, ".sh") {
+						ind = i
+						break
+					}
+				}
 				var cmd *exec.Cmd
 				if comEnbld {
-					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.ap.dir+"\"; \"./"+a.ap.lin[0]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.ap.dir+"\"; \"./"+a.ap.lin[ind]+"\"")
 				} else {
-					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.ap.dir+"\"; \"./"+a.ap.lin[0]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.ap.dir+"\"; \"./"+a.ap.lin[ind]+"\"")
 				}
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
