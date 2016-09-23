@@ -16,7 +16,15 @@ import (
 func setup() {
 	PortableAppsFold, err := os.Open("PortableApps")
 	if PAStat, _ := PortableAppsFold.Stat(); err != nil || !PAStat.IsDir() {
-		panic("PortableApps folder not found!!")
+		os.Mkdir("PortableApps", 0777)
+		PortableAppsFold, err = os.Open("PortableApps")
+		if err != nil {
+			panic("Can't find PortableApps folder and can't create one!")
+		}
+	}
+	_, err = os.Open("PortableApps/LinuxPACom/common.sh")
+	if err == nil {
+		comEnbld = true
 	}
 	PAFolds, _ := PortableAppsFold.Readdirnames(-1)
 	sort.Strings(PAFolds)
