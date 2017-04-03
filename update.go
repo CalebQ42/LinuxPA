@@ -20,14 +20,11 @@ const (
 
 //Returns if success
 func versionDL() bool {
-	versionFile, err := os.Open("PortableApps/LinuxPACom/Version")
+	versionFile, err := os.Create("PortableApps/LinuxPACom/Version")
 	if err != nil {
-		versionFile, err = os.Create("PortableApps/LinuxPACom/Version")
-		if err != nil {
-			return false
-		}
+		return false
 	}
-	defer versionFile.Close()
+	versionFile.Chmod(0777)
 	check := http.Client{
 		CheckRedirect: func(r *http.Request, via []*http.Request) error {
 			r.URL.Opaque = r.URL.Path
@@ -35,7 +32,6 @@ func versionDL() bool {
 		},
 	}
 	response, err := check.Get(versionURL)
-	defer response.Body.Close()
 	if err != nil {
 		return false
 	}
@@ -85,6 +81,7 @@ func downloadUpdate(newVersion string) bool {
 		return false
 	}
 	fil, err := os.Create("LinuxPA")
+	fil.Chmod(0777)
 	defer fil.Close()
 	if err != nil {
 		os.Rename(".LinuxPA.old", "LinuxPA")

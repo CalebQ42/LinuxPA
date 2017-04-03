@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 
 	"github.com/nelsam/gxui"
 	"github.com/nelsam/gxui/drivers/gl"
@@ -10,7 +12,7 @@ import (
 )
 
 const (
-	version = "0.1.1.1"
+	version = "1.1.0.0"
 	defIni  = "[basic]\ntheme=dk"
 )
 
@@ -27,6 +29,8 @@ var (
 )
 
 func main() {
+	updated := false
+	os.MkdirAll("PortableApps/LinuxPACom", 0777)
 	stat := versionDL()
 	if stat {
 		res := getVersionFileInfo()
@@ -34,6 +38,7 @@ func main() {
 			stat = checkForUpdate(res)
 			if stat {
 				downloadUpdate(res)
+				updated = true
 			} else {
 				fmt.Println("Failed DL")
 			}
@@ -43,9 +48,17 @@ func main() {
 	} else {
 		fmt.Println("Failed Version DL")
 	}
-	master = make(map[string][]app)
-	linmaster = make(map[string][]app)
-	gl.StartDriver(appMain)
+	if updated {
+		cmd := exec.Command("./LinuxPA")
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Start()
+		fmt.Println("updated!")
+	} else {
+		master = make(map[string][]app)
+		linmaster = make(map[string][]app)
+		gl.StartDriver(appMain)
+	}
 }
 
 func appMain(dri gxui.Driver) {
