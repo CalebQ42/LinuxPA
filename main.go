@@ -4,6 +4,12 @@ import (
 	"github.com/nelsam/gxui"
 	"github.com/nelsam/gxui/drivers/gl"
 	"github.com/nelsam/gxui/themes/dark"
+	"github.com/nelsam/gxui/themes/light"
+)
+
+const (
+	version = "0.1.1.1"
+	defIni  = "[basic]\ntheme=dk"
 )
 
 var (
@@ -15,6 +21,7 @@ var (
 	lin       []string
 	wine      bool
 	comEnbld  bool
+	darkTheme = true
 )
 
 func main() {
@@ -25,8 +32,13 @@ func main() {
 
 func appMain(dri gxui.Driver) {
 	dr = dri
-	th = dark.CreateTheme(dr)
 	setup()
+	if darkTheme {
+		th = dark.CreateTheme(dr)
+	} else {
+		th = light.CreateTheme(dr)
+	}
+	th = dark.CreateTheme(dr)
 	ui()
 }
 

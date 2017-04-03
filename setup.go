@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"image"
 	"image/draw"
 	_ "image/png"
@@ -13,6 +14,8 @@ import (
 	"github.com/nelsam/gxui"
 )
 
+const ()
+
 func setup() {
 	PortableAppsFold, err := os.Open("PortableApps")
 	if PAStat, _ := PortableAppsFold.Stat(); err != nil || !PAStat.IsDir() {
@@ -22,9 +25,36 @@ func setup() {
 			panic("Can't find PortableApps folder and can't create one!")
 		}
 	}
+	if _, err = os.Open("PortableApps/LinuxPACom"); err != nil {
+		os.Mkdir("PortableApps/LinuxPACom", 0777)
+	}
+	fmt.Println(err)
 	_, err = os.Open("PortableApps/LinuxPACom/common.sh")
 	if err == nil {
 		comEnbld = true
+	}
+	fi, err := os.Open("PortableApps/LinuxPACom/Info.ini")
+	if err != nil {
+		fi, err = os.Create("PortableApps/LinuxPACom/Info.ini")
+		if err == nil {
+			wrt := bufio.NewWriter(fi)
+			wrt.WriteString(defIni)
+			wrt.Flush()
+		}
+	}
+	if err == nil {
+		rdr := bufio.NewReader(fi)
+		for err != nil {
+			ln, _, error := rdr.ReadLine()
+			err = error
+			str := string(ln)
+			if strings.HasPrefix(str, "theme=") {
+				str = strings.TrimPrefix(str, "theme=")
+				if str == "lt" {
+					darkTheme = false
+				}
+			}
+		}
 	}
 	PAFolds, _ := PortableAppsFold.Readdirnames(-1)
 	sort.Strings(PAFolds)
@@ -86,7 +116,7 @@ func processApp(fold string) (out app) {
 			btys := make([]byte, 4)
 			rdr := bufio.NewReader(tmp)
 			rdr.Read(btys)
-			if (strings.Contains(strings.ToLower(string(btys)), "elf") && !strings.HasSuffix(strings.ToLower(v), ".so")) || strings.HasPrefix(strings.ToLower(string(btys)), "#!") {
+			if (strings.Contains(strings.ToLower(string(btys)), "elf") && !strings.HasSuffix(strings.ToLower(v), ".so") && !strings.Contains(v, ".so.")) || strings.HasPrefix(strings.ToLower(string(btys)), "#!") {
 				out.ex = append(out.ex, v)
 				out.lin = append(out.lin, v)
 			}
