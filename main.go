@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/nelsam/gxui"
 	"github.com/nelsam/gxui/drivers/gl"
 	"github.com/nelsam/gxui/themes/dark"
@@ -25,6 +27,22 @@ var (
 )
 
 func main() {
+	stat := versionDL()
+	if stat {
+		res := getVersionFileInfo()
+		if res != "Error!" {
+			stat = checkForUpdate(res)
+			if stat {
+				downloadUpdate(res)
+			} else {
+				fmt.Println("Failed DL")
+			}
+		} else {
+			fmt.Println("Failed Version File Info")
+		}
+	} else {
+		fmt.Println("Failed Version DL")
+	}
 	master = make(map[string][]app)
 	linmaster = make(map[string][]app)
 	gl.StartDriver(appMain)

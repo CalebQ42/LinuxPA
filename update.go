@@ -56,8 +56,8 @@ func getVersionFileInfo() string {
 	return string(out)
 }
 
-func checkForUpdate(cur string, new string) bool {
-	curSlice := strings.Split(cur, ".")
+func checkForUpdate(new string) bool {
+	curSlice := strings.Split(version, ".")
 	newSlice := strings.Split(new, ".")
 	curNums := make([]int, 4)
 	newNums := make([]int, 4)
