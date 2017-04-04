@@ -43,7 +43,7 @@ func main() {
 				fmt.Println(err)
 			}
 		} else {
-			fmt.Println(err)
+			fmt.Println("Failed Version File Info")
 		}
 	} else {
 		fmt.Println(err)
