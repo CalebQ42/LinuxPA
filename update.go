@@ -2,11 +2,15 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/gotk3/gotk3/gtk"
 )
 
 const (
@@ -105,4 +109,51 @@ func downloadUpdate(newVersion string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func update(win *gtk.Window) {
+	updateWin, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+	updateWin.SetTransientFor(win)
+	topLvl, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
+	spin, _ := gtk.SpinnerNew()
+	spin.Start()
+	lbl, _ := gtk.LabelNew("Checking for updates")
+	topLvl.Add(spin)
+	topLvl.Add(lbl)
+	topLvl.SetMarginBottom(10)
+	topLvl.SetMarginEnd(10)
+	topLvl.SetMarginStart(10)
+	topLvl.SetMarginTop(10)
+	updateWin.SetPosition(gtk.WIN_POS_CENTER_ON_PARENT)
+	updateWin.Add(topLvl)
+	updateWin.ShowAll()
+	updateWin.Show()
+	go func(win, updateWin *gtk.Window) {
+		stat, err := versionDL()
+		if stat {
+			res := getVersionFileInfo()
+			if res != "Error!" {
+				stat, err = checkForUpdate(res)
+				if stat {
+					lbl.SetText("Updating!")
+					downloadUpdate(res)
+					updateWin.Close()
+					win.Close()
+					cmd := exec.Command("./LinuxPA")
+					cmd.Stdin = os.Stdin
+					cmd.Stdout = os.Stdout
+					cmd.Start()
+				} else {
+					fmt.Println(err)
+					updateWin.Close()
+				}
+			} else {
+				fmt.Println("Failed Version File Info")
+				updateWin.Close()
+			}
+		} else {
+			fmt.Println(err)
+			updateWin.Close()
+		}
+	}(win, updateWin)
 }
