@@ -3,14 +3,15 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"image"
+	"image/draw"
 	_ "image/png"
 	"os"
 	"reflect"
 	"sort"
 	"strings"
 
-	"github.com/gotk3/gotk3/gdk"
-	"github.com/gotk3/gotk3/gtk"
+	"github.com/nelsam/gxui"
 )
 
 func setup() {
@@ -154,8 +155,8 @@ func getName(ini *os.File) string {
 	return ret
 }
 
-func getIcon(fold string) *gdk.Pixbuf {
-	var pic string
+func getIcon(fold string) gxui.Texture {
+	var pic *os.File
 	if folder, err := os.Open(fold + "/App/AppInfo"); err == nil {
 		fis, _ := folder.Readdir(-1)
 		var pics []string
@@ -172,18 +173,21 @@ func getIcon(fold string) *gdk.Pixbuf {
 			} else {
 				ind = sort.SearchStrings(pics, "appicon_32.png")
 			}
-			pic = fold + "/App/AppInfo/" + pics[ind]
+			pic, _ = os.Open(fold + "/App/AppInfo/" + pics[ind])
 		}
-	} else if _, err := os.Open(fold + "/appicon.png"); err == nil {
-		pic = fold + "/appicon.png"
+	} else if fi, err := os.Open(fold + "/appicon.png"); err == nil {
+		pic = fi
 	} else {
-		img, _ := gtk.ImageNewFromIconName("application-x-executable", gtk.ICON_SIZE_BUTTON)
-		buf, _ := img.GetPixbuf().ScaleSimple(32, 32, gdk.INTERP_BILINEAR)
-		return buf
+		return nil
 	}
-	img, _ := gtk.ImageNewFromFile(pic)
-	buf, _ := img.GetPixbuf().ScaleSimple(32, 32, gdk.INTERP_BILINEAR)
-	return buf
+	img, _, err := image.Decode(pic)
+	if err != nil {
+		return nil
+	}
+	rgba := image.NewRGBA(img.Bounds())
+	draw.Draw(rgba, img.Bounds(), img, image.ZP, draw.Src)
+	ret := dr.CreateTexture(rgba, 1)
+	return ret
 }
 
 func findInfo(fold string) *os.File {

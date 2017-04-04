@@ -3,22 +3,16 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
 
-	"github.com/nelsam/gxui"
-	"github.com/nelsam/gxui/drivers/gl"
-	"github.com/nelsam/gxui/themes/dark"
-	"github.com/nelsam/gxui/themes/light"
+	"github.com/gotk3/gotk3/gtk"
 )
 
 const (
-	version = "1.1.0.0"
-	defIni  = "[basic]\ntheme=dk"
+	version = "2.0.0.1"
+	defIni  = ""
 )
 
 var (
-	dr        gxui.Driver
-	th        gxui.Theme
 	master    map[string][]app
 	linmaster map[string][]app
 	cats      []string
@@ -29,47 +23,30 @@ var (
 )
 
 func main() {
-	updated := false
 	os.MkdirAll("PortableApps/LinuxPACom", 0777)
-	stat, err := versionDL()
-	if stat {
-		res := getVersionFileInfo()
-		if res != "Error!" {
-			stat, err = checkForUpdate(res)
-			if stat {
-				downloadUpdate(res)
-				updated = true
-			} else {
-				fmt.Println(err)
-			}
-		} else {
-			fmt.Println("Failed Version File Info")
-		}
-	} else {
-		fmt.Println(err)
-	}
-	if updated {
-		cmd := exec.Command("./LinuxPA")
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Start()
-	} else {
-		master = make(map[string][]app)
-		linmaster = make(map[string][]app)
-		gl.StartDriver(appMain)
-	}
+	master = make(map[string][]app)
+	linmaster = make(map[string][]app)
+	uiStart()
 }
 
-func appMain(dri gxui.Driver) {
-	dr = dri
+func uiStart() {
+	gtk.Init(nil)
 	setup()
-	if darkTheme {
-		th = dark.CreateTheme(dr)
-	} else {
-		th = light.CreateTheme(dr)
+	win, err := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+	if err != nil {
+		fmt.Println("Window not created", err)
 	}
-	th = dark.CreateTheme(dr)
-	ui()
+	win.SetTitle("LinuxPA")
+	win.Connect("destroy", func() {
+		gtk.MainQuit()
+	})
+	win.SetDefaultSize(500, 500)
+	win.SetPosition(gtk.WIN_POS_CENTER)
+	ui(win)
+	win.ShowAll()
+	win.Show()
+	update(win)
+	gtk.Main()
 }
 
 func contains(arr []string, str string) bool {
