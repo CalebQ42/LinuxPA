@@ -31,29 +31,28 @@ var (
 func main() {
 	updated := false
 	os.MkdirAll("PortableApps/LinuxPACom", 0777)
-	stat := versionDL()
+	stat, err := versionDL()
 	if stat {
 		res := getVersionFileInfo()
 		if res != "Error!" {
-			stat = checkForUpdate(res)
+			stat, err = checkForUpdate(res)
 			if stat {
 				downloadUpdate(res)
 				updated = true
 			} else {
-				fmt.Println("Failed DL")
+				fmt.Println(err)
 			}
 		} else {
-			fmt.Println("Failed Version File Info")
+			fmt.Println(err)
 		}
 	} else {
-		fmt.Println("Failed Version DL")
+		fmt.Println(err)
 	}
 	if updated {
 		cmd := exec.Command("./LinuxPA")
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Start()
-		fmt.Println("updated!")
 	} else {
 		master = make(map[string][]app)
 		linmaster = make(map[string][]app)

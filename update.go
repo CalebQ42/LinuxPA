@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -19,10 +18,10 @@ const (
 //For some of the code
 
 //Returns if success
-func versionDL() bool {
+func versionDL() (bool, error) {
 	versionFile, err := os.Create("PortableApps/LinuxPACom/Version")
 	if err != nil {
-		return false
+		return false, err
 	}
 	versionFile.Chmod(0777)
 	check := http.Client{
@@ -33,13 +32,13 @@ func versionDL() bool {
 	}
 	response, err := check.Get(versionURL)
 	if err != nil {
-		return false
+		return false, err
 	}
 	_, err = io.Copy(versionFile, response.Body)
 	if err != nil {
-		return false
+		return false, err
 	}
-	return true
+	return true, nil
 }
 
 func getVersionFileInfo() string {
@@ -52,7 +51,7 @@ func getVersionFileInfo() string {
 	return string(out)
 }
 
-func checkForUpdate(new string) bool {
+func checkForUpdate(new string) (bool, error) {
 	curSlice := strings.Split(version, ".")
 	newSlice := strings.Split(new, ".")
 	curNums := make([]int, 4)
@@ -65,27 +64,28 @@ func checkForUpdate(new string) bool {
 		num, err = strconv.Atoi(newSlice[i])
 		if err == nil {
 			newNums[i] = num
+		} else {
+			return false, err
 		}
 		if newNums[i] > curNums[i] {
-			return true
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
 
-func downloadUpdate(newVersion string) bool {
+func downloadUpdate(newVersion string) (bool, error) {
 	url := strings.Replace(downloadURL, "XXX", newVersion, -1)
 	err := os.Rename("LinuxPA", ".LinuxPA.old")
 	if err != nil {
-		fmt.Println(err)
-		return false
+		return false, err
 	}
 	fil, err := os.Create("LinuxPA")
 	fil.Chmod(0777)
 	defer fil.Close()
 	if err != nil {
 		os.Rename(".LinuxPA.old", "LinuxPA")
-		return false
+		return false, err
 	}
 	check := http.Client{
 		CheckRedirect: func(r *http.Request, via []*http.Request) error {
@@ -94,13 +94,13 @@ func downloadUpdate(newVersion string) bool {
 		},
 	}
 	re, err := check.Get(url)
-	defer re.Body.Close()
 	if err != nil {
-		return false
+		return false, err
 	}
+	defer re.Body.Close()
 	_, err = io.Copy(fil, re.Body)
 	if err != nil {
-		return false
+		return false, err
 	}
-	return true
+	return true, nil
 }
