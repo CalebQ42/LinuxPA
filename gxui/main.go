@@ -5,12 +5,15 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/gotk3/gotk3/gtk"
 	"github.com/nelsam/gxui"
+	"github.com/nelsam/gxui/drivers/gl"
+	"github.com/nelsam/gxui/themes/dark"
+	"github.com/nelsam/gxui/themes/light"
 )
 
 const (
-	version = "2.0.0.0"
+	version = "1.1.0.0"
+	defIni  = "[basic]\ntheme=dk"
 )
 
 var (
@@ -51,38 +54,23 @@ func main() {
 		cmd.Stdout = os.Stdout
 		cmd.Start()
 	} else {
-		// master = make(map[string][]app)
-		// linmaster = make(map[string][]app)
-		uiStart()
+		master = make(map[string][]app)
+		linmaster = make(map[string][]app)
+		gl.StartDriver(appMain)
 	}
 }
 
-func uiStart() {
-	gtk.Init(nil)
-	win, err := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
-	if err != nil {
-		fmt.Println("Window not created", err)
+func appMain(dri gxui.Driver) {
+	dr = dri
+	setup()
+	if darkTheme {
+		th = dark.CreateTheme(dr)
+	} else {
+		th = light.CreateTheme(dr)
 	}
-	win.SetTitle("LinuxPA")
-	win.Connect("destroy", func() {
-		gtk.MainQuit()
-	})
-	win.SetDefaultSize(500, 500)
-	ui(win)
-	gtk.Main()
+	th = dark.CreateTheme(dr)
+	ui()
 }
-
-// func appMain(dri gxui.Driver) {
-// 	dr = dri
-// 	setup()
-// 	if darkTheme {
-// 		th = dark.CreateTheme(dr)
-// 	} else {
-// 		th = light.CreateTheme(dr)
-// 	}
-// 	th = dark.CreateTheme(dr)
-// 	ui()
-// }
 
 func contains(arr []string, str string) bool {
 	for _, v := range arr {

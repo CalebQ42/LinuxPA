@@ -69,6 +69,8 @@ func checkForUpdate(new string) (bool, error) {
 		}
 		if newNums[i] > curNums[i] {
 			return true, nil
+		} else if curNums[i] > newNums[i] {
+			return false, nil
 		}
 	}
 	return false, nil
