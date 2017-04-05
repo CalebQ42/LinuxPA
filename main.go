@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	version = "2.0.0.1"
+	version = "2.0.1.0"
 	defIni  = ""
 )
 
@@ -19,7 +19,8 @@ var (
 	lin       []string
 	wine      bool
 	comEnbld  bool
-	darkTheme = true
+	wineAvail bool
+	showMsg   = true
 )
 
 func main() {

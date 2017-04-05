@@ -16,7 +16,7 @@ func ui(win *gtk.Window) {
 	header.SetSubtitle("PortableApps.com type launcher")
 	settings, _ := gtk.ButtonNewFromIconName("applications-system", gtk.ICON_SIZE_SMALL_TOOLBAR)
 	settings.Connect("clicked", func() {
-		//Open Settings window!
+		settingsUI()
 	})
 	settings.SetTooltipText("Settings (Coming Soon!)")
 	header.PackStart(settings)
@@ -33,6 +33,7 @@ func ui(win *gtk.Window) {
 	txtColumn, _ := gtk.TreeViewColumnNewWithAttribute("", txtRender, "text", 1)
 	appsList.AppendColumn(pixColumn)
 	appsList.AppendColumn(txtColumn)
+	appsList.SetHeadersVisible(false)
 	catList.SetHExpand(true)
 	catList.SetVExpand(true)
 	appsList.SetHExpand(true)
@@ -43,12 +44,18 @@ func ui(win *gtk.Window) {
 	hScrollApp, _ := gtk.AdjustmentNew(0, 0, 0, 0, 0, 0)
 	catScrl, _ := gtk.ScrolledWindowNew(hScrollCat, vScrollCat)
 	catScrl.Add(catList)
+	catScrl.SetSizeRequest(170, 500)
 	appScrl, _ := gtk.ScrolledWindowNew(hScrollApp, vScrollApp)
 	appScrl.Add(appsList)
+	appScrl.SetSizeRequest(300, 500)
 	lrBox.Add(catScrl)
 	lrBox.Add(appScrl)
 	botBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 2)
 	wineCheck, _ := gtk.CheckButtonNewWithLabel("Show Windows apps (Wine)")
+	if !wineAvail {
+		wineCheck.SetSensitive(false)
+		wineCheck.SetTooltipText("Download wine to run windows apps")
+	}
 	wineCheck.Connect("toggled", func() {
 		wine = wineCheck.GetActive()
 		for i := range ls {
