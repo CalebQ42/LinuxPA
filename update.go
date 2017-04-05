@@ -112,7 +112,7 @@ func downloadUpdate(newVersion string) (bool, error) {
 }
 
 func update(win *gtk.Window) {
-	updateWin, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+	updateWin, _ := gtk.WindowNew(gtk.WINDOW_POPUP)
 	updateWin.SetTransientFor(win)
 	topLvl, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
 	spin, _ := gtk.SpinnerNew()
@@ -129,6 +129,7 @@ func update(win *gtk.Window) {
 	updateWin.ShowAll()
 	updateWin.Show()
 	go func(win, updateWin *gtk.Window) {
+		defer updateWin.Close()
 		stat, err := versionDL()
 		if stat {
 			res := getVersionFileInfo()
@@ -137,7 +138,6 @@ func update(win *gtk.Window) {
 				if stat {
 					lbl.SetText("Updating!")
 					downloadUpdate(res)
-					updateWin.Close()
 					win.Close()
 					cmd := exec.Command("./LinuxPA")
 					cmd.Stdin = os.Stdin
@@ -145,15 +145,12 @@ func update(win *gtk.Window) {
 					cmd.Start()
 				} else {
 					fmt.Println(err)
-					updateWin.Close()
 				}
 			} else {
 				fmt.Println("Failed Version File Info")
-				updateWin.Close()
 			}
 		} else {
 			fmt.Println(err)
-			updateWin.Close()
 		}
 	}(win, updateWin)
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "image/png"
 	"os"
+	"os/exec"
 	"reflect"
 	"sort"
 	"strings"
@@ -14,6 +15,13 @@ import (
 )
 
 func setup() {
+	if _, err := os.Open("PortableApps/LinuxPACom/Wine"); os.IsNotExist(err) {
+		if _, errd := exec.LookPath("wine"); errd == nil {
+			wineAvail = true
+		}
+	} else if err == nil {
+		wineAvail = true
+	}
 	PortableAppsFold, err := os.Open("PortableApps")
 	if PAStat, _ := PortableAppsFold.Stat(); err != nil || !PAStat.IsDir() {
 		os.Mkdir("PortableApps", 0777)
@@ -30,28 +38,9 @@ func setup() {
 	if err == nil {
 		comEnbld = true
 	}
-	fi, err := os.Open("PortableApps/LinuxPACom/Info.ini")
+	_, err = os.Open("PortableApps/LinuxPACom/Info.ini")
 	if err != nil {
-		fi, err = os.Create("PortableApps/LinuxPACom/Info.ini")
-		if err == nil {
-			wrt := bufio.NewWriter(fi)
-			wrt.WriteString(defIni)
-			wrt.Flush()
-		}
-	}
-	if err == nil {
-		rdr := bufio.NewReader(fi)
-		for err != nil {
-			ln, _, error := rdr.ReadLine()
-			err = error
-			str := string(ln)
-			if strings.HasPrefix(str, "theme=") {
-				str = strings.TrimPrefix(str, "theme=")
-				if str == "lt" {
-					darkTheme = false
-				}
-			}
-		}
+		os.Create("PortableApps/LinuxPACom/Info.ini")
 	}
 	PAFolds, _ := PortableAppsFold.Readdirnames(-1)
 	sort.Strings(PAFolds)
