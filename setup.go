@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	_ "image/png"
 	"os"
 	"os/exec"
@@ -14,7 +15,6 @@ import (
 )
 
 func setup() {
-	loadPrefs()
 	if _, err := os.Open("PortableApps/LinuxPACom/Wine"); os.IsNotExist(err) {
 		if _, errd := exec.LookPath("wine"); errd == nil {
 			wineAvail = true
@@ -33,6 +33,7 @@ func setup() {
 	if _, err = os.Open("PortableApps/LinuxPACom"); err != nil {
 		os.Mkdir("PortableApps/LinuxPACom", 0777)
 	}
+	fmt.Println(err)
 	_, err = os.Open("PortableApps/LinuxPACom/common.sh")
 	if err == nil {
 		comEnbld = true

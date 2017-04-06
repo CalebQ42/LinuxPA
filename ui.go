@@ -2,16 +2,14 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 )
 
-var catIcons = []string{"accessories", "development", "engineering", "games", "graphics", "internet", "multimedia", "office", "other", "science", "system", "utilities"}
-
 func ui(win *gtk.Window) {
+	ls := getCatRows()
+	var treeApps []*gtk.TreeIter
 	header, _ := gtk.HeaderBarNew()
 	header.SetShowCloseButton(true)
 	header.SetTitle("LinuxPA")
@@ -25,8 +23,8 @@ func ui(win *gtk.Window) {
 	win.SetTitlebar(header)
 	topLvl, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	lrBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 5)
-	// catList, _ := gtk.ListBoxNew()
-	// catList.SetActivateOnSingleClick(true)
+	catList, _ := gtk.ListBoxNew()
+	catList.SetActivateOnSingleClick(true)
 	store, _ := gtk.TreeStoreNew(glib.TYPE_OBJECT, glib.TYPE_STRING)
 	appsList, _ := gtk.TreeViewNewWithModel(store)
 	render, _ := gtk.CellRendererPixbufNew()
@@ -36,21 +34,21 @@ func ui(win *gtk.Window) {
 	appsList.AppendColumn(pixColumn)
 	appsList.AppendColumn(txtColumn)
 	appsList.SetHeadersVisible(false)
-	// catList.SetHExpand(true)
-	// catList.SetVExpand(true)
+	catList.SetHExpand(true)
+	catList.SetVExpand(true)
 	appsList.SetHExpand(true)
 	appsList.SetVExpand(true)
-	// vScrollCat, _ := gtk.AdjustmentNew(0, 0, 0, 0, 0, 0)
-	// hScrollCat, _ := gtk.AdjustmentNew(0, 0, 0, 0, 0, 0)
+	vScrollCat, _ := gtk.AdjustmentNew(0, 0, 0, 0, 0, 0)
+	hScrollCat, _ := gtk.AdjustmentNew(0, 0, 0, 0, 0, 0)
 	vScrollApp, _ := gtk.AdjustmentNew(0, 0, 0, 0, 0, 0)
 	hScrollApp, _ := gtk.AdjustmentNew(0, 0, 0, 0, 0, 0)
-	// catScrl, _ := gtk.ScrolledWindowNew(hScrollCat, vScrollCat)
-	// catScrl.Add(catList)
-	// catScrl.SetSizeRequest(170, 500)
+	catScrl, _ := gtk.ScrolledWindowNew(hScrollCat, vScrollCat)
+	catScrl.Add(catList)
+	catScrl.SetSizeRequest(170, 500)
 	appScrl, _ := gtk.ScrolledWindowNew(hScrollApp, vScrollApp)
 	appScrl.Add(appsList)
 	appScrl.SetSizeRequest(300, 500)
-	// lrBox.Add(catScrl)
+	lrBox.Add(catScrl)
 	lrBox.Add(appScrl)
 	botBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 2)
 	wineCheck, _ := gtk.CheckButtonNewWithLabel("Show Windows apps (Wine)")
@@ -58,80 +56,80 @@ func ui(win *gtk.Window) {
 		wineCheck.SetSensitive(false)
 		wineCheck.SetTooltipText("Download wine to run windows apps")
 	}
-	wineCheck.SetActive(wine)
 	wineCheck.Connect("toggled", func() {
 		wine = wineCheck.GetActive()
-		store.Clear()
-		getTreeIters(store)
+		for i := range ls {
+			catList.Remove(catList.GetRowAtIndex(i))
+		}
+		ls = getCatRows()
+		for _, v := range ls {
+			catList.Add(v)
+		}
+		catList.ShowAll()
 	})
 	botBox.Add(wineCheck)
 	topLvl.Add(lrBox)
 	topLvl.PackEnd(botBox, false, true, 0)
 	win.Add(topLvl)
+	for _, v := range ls {
+		catList.Prepend(v)
+	}
+	catList.Connect("row-selected", func() {
+		store.Clear()
+		if catList.GetSelectedRow().GetIndex() >= 0 {
+			treeApps = make([]*gtk.TreeIter, 0)
+			if wine {
+				apps := master[cats[catList.GetSelectedRow().GetIndex()]]
+				for _, v := range apps {
+					treeApps = append(treeApps, v.getTreeIter(store))
+				}
+			} else {
+				apps := linmaster[lin[catList.GetSelectedRow().GetIndex()]]
+				for _, v := range apps {
+					treeApps = append(treeApps, v.getTreeIter(store))
+				}
+			}
+		}
+	})
 	appsList.Connect("row-activated", func() {
 		selec, _ := appsList.GetSelection()
 		_, it, ok := selec.GetSelected()
 		if ok {
 			pth, _ := store.GetPath(it)
 			ind := pth.GetIndices()
-			if len(ind) == 2 {
+			if len(ind) == 1 {
 				if wine {
-					app := master[cats[ind[0]]][ind[1]]
+					app := master[cats[catList.GetSelectedRow().GetIndex()]][ind[0]]
 					app.launch()
 				} else {
-					app := linmaster[lin[ind[0]]][ind[1]]
+					app := linmaster[lin[catList.GetSelectedRow().GetIndex()]][ind[0]]
 					app.launch()
 				}
-			} else if len(ind) == 3 {
+			} else if len(ind) == 2 {
 				if wine {
-					app := master[cats[ind[0]]][ind[1]]
-					app.launchSub(ind[2])
+					app := master[cats[catList.GetSelectedRow().GetIndex()]][ind[0]]
+					app.launchSub(ind[1])
 				} else {
-					app := linmaster[lin[ind[0]]][ind[1]]
-					app.launchSub(ind[2])
+					app := linmaster[lin[catList.GetSelectedRow().GetIndex()]][ind[0]]
+					app.launchSub(ind[1])
 				}
 			}
 		}
 	})
 }
 
-func getTreeIters(store *gtk.TreeStore) (out []*gtk.TreeIter) {
+func getCatRows() (out []*gtk.Label) {
 	if wine {
 		for _, v := range cats {
-			it := store.Append(nil)
-			if contains(catIcons, strings.ToLower(v)) {
-				img, _ := gtk.ImageNewFromIconName("applications-"+strings.ToLower(v), gtk.ICON_SIZE_BUTTON)
-				buf, _ := img.GetPixbuf().ScaleSimple(32, 32, gdk.INTERP_BILINEAR)
-				store.SetValue(it, 0, buf)
-			} else {
-				img, _ := gtk.ImageNewFromIconName("applications-other", gtk.ICON_SIZE_BUTTON)
-				buf, _ := img.GetPixbuf().ScaleSimple(32, 32, gdk.INTERP_BILINEAR)
-				store.SetValue(it, 0, buf)
-			}
-			store.SetValue(it, 1, v)
-			for _, v := range master[v] {
-				v.getTreeIter(store, it)
-			}
-			out = append(out, it)
+			txt, _ := gtk.LabelNew(v)
+			out = append(out, txt)
+			fmt.Println(v)
 		}
 	} else {
 		for _, v := range lin {
+			txt, _ := gtk.LabelNew(v)
+			out = append(out, txt)
 			fmt.Println(v)
-			it := store.Append(nil)
-			// if contains(catIcons, strings.ToLower(v)) {
-			// 	img, _ := gtk.ImageNewFromIconName("applications-"+strings.ToLower(v), gtk.ICON_SIZE_BUTTON)
-			// 	buf := img.GetPixbuf()
-			// 	store.SetValue(it, 0, buf)
-			// } else {
-			// 	img, _ := gtk.ImageNewFromIconName("applications-other", gtk.ICON_SIZE_BUTTON)
-			// 	buf, _ := img.GetPixbuf().ScaleSimple(32, 32, gdk.INTERP_BILINEAR)
-			// 	store.SetValue(it, 0, buf)
-			// }
-			store.SetValue(it, 1, v)
-			for _, v := range linmaster[v] {
-				v.getTreeIter(store, it)
-			}
-			out = append(out, it)
 		}
 	}
 	return
