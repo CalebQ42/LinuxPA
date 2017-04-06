@@ -38,10 +38,6 @@ func setup() {
 	if err == nil {
 		comEnbld = true
 	}
-	_, err = os.Open("PortableApps/LinuxPACom/Info.ini")
-	if err != nil {
-		os.Create("PortableApps/LinuxPACom/Info.ini")
-	}
 	PAFolds, _ := PortableAppsFold.Readdirnames(-1)
 	sort.Strings(PAFolds)
 	for _, v := range PAFolds {
