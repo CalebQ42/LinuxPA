@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"os"
 
@@ -20,7 +21,6 @@ var (
 	wine      bool
 	comEnbld  bool
 	wineAvail bool
-	showMsg   = true
 )
 
 func main() {
@@ -39,6 +39,7 @@ func uiStart() {
 	}
 	win.SetTitle("LinuxPA")
 	win.Connect("destroy", func() {
+		savePrefs()
 		gtk.MainQuit()
 	})
 	win.SetDefaultSize(500, 500)
@@ -48,6 +49,27 @@ func uiStart() {
 	win.Show()
 	update(win)
 	gtk.Main()
+}
+
+func savePrefs() {
+	fil, err := os.Open("PortableApps/LinuxPACom/Prefs.gob")
+	if os.IsNotExist(err) {
+		fil, err = os.Create("PortableApps/LinuxPACom/Prefs.gob")
+	}
+	if err != nil {
+		return
+	}
+	enc := gob.NewEncoder(fil)
+	enc.Encode(wine)
+}
+
+func loadPrefs() {
+	fil, err := os.Open("PortableApps/LinuxPACom/Prefs.gob")
+	if err != nil {
+		return
+	}
+	dec := gob.NewDecoder(fil)
+	dec.Decode(&wine)
 }
 
 func contains(arr []string, str string) bool {
