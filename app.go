@@ -20,8 +20,8 @@ type app struct {
 	ini    *os.File
 }
 
-func (a *app) getTreeIter(store *gtk.TreeStore, parent *gtk.TreeIter) *gtk.TreeIter {
-	it := store.Append(parent)
+func (a *app) getTreeIter(store *gtk.TreeStore) *gtk.TreeIter {
+	it := store.Append(nil)
 	store.SetValue(it, 0, a.icon)
 	store.SetValue(it, 1, a.name)
 	if len(a.ex) > 1 {
