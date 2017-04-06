@@ -14,6 +14,7 @@ import (
 )
 
 func setup() {
+	loadPrefs()
 	if _, err := os.Open("PortableApps/LinuxPACom/Wine"); os.IsNotExist(err) {
 		if _, errd := exec.LookPath("wine"); errd == nil {
 			wineAvail = true
