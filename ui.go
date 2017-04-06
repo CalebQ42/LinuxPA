@@ -62,8 +62,8 @@ func ui(win *gtk.Window) {
 			catList.Remove(catList.GetRowAtIndex(i))
 		}
 		ls = getCatRows()
-		for _, v := range ls {
-			catList.Add(v)
+		for i, v := range ls {
+			catList.Insert(v, i)
 		}
 		catList.ShowAll()
 	})
