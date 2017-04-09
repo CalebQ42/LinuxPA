@@ -22,6 +22,9 @@ func setup() {
 	} else if err == nil {
 		wineAvail = true
 	}
+	if !wineAvail {
+		wine = false
+	}
 	PortableAppsFold, err := os.Open("PortableApps")
 	if PAStat, _ := PortableAppsFold.Stat(); err != nil || !PAStat.IsDir() {
 		os.Mkdir("PortableApps", 0777)
@@ -119,6 +122,8 @@ func getCat(ini *os.File) string {
 		if strings.HasPrefix(string(line), "Category=") {
 			ret = strings.TrimPrefix(string(line), "Category=")
 			break
+		} else if strings.HasPrefix(string(line), "category=") {
+			ret = strings.TrimPrefix(string(line), "category=")
 		}
 	}
 	rdr.Reset(ini)
@@ -131,6 +136,9 @@ func getName(ini *os.File) string {
 	for line, _, err := rdr.ReadLine(); err == nil; line, _, err = rdr.ReadLine() {
 		if strings.HasPrefix(string(line), "Name=") {
 			ret = strings.TrimPrefix(string(line), "Name=")
+			break
+		} else if strings.HasPrefix(string(line), "name=") {
+			ret = strings.TrimPrefix(string(line), "name=")
 			break
 		}
 	}

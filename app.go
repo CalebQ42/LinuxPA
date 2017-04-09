@@ -25,9 +25,16 @@ func (a *app) getTreeIter(store *gtk.TreeStore) *gtk.TreeIter {
 	store.SetValue(it, 0, a.icon)
 	store.SetValue(it, 1, a.name)
 	if len(a.ex) > 1 {
-		for _, v := range a.ex {
-			i := store.Append(it)
-			store.SetValue(i, 1, v)
+		if wine {
+			for _, v := range a.ex {
+				i := store.Append(it)
+				store.SetValue(i, 1, v)
+			}
+		} else {
+			for _, v := range a.lin {
+				i := store.Append(it)
+				store.SetValue(i, 1, v)
+			}
 		}
 	}
 	return it
@@ -38,7 +45,11 @@ func (a *app) launch() {
 		if wine {
 			var cmd *exec.Cmd
 			if !contains(a.lin, a.ex[0]) {
-				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
+				if comEnbld {
+					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
+				} else {
+					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
+				}
 			} else {
 				if comEnbld {
 					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
@@ -64,7 +75,11 @@ func (a *app) launch() {
 		if wine {
 			var cmd *exec.Cmd
 			if len(a.lin) == 0 {
-				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
+				if comEnbld {
+					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
+				} else {
+					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
+				}
 			} else {
 				var ind int
 				for i, v := range a.lin {
@@ -109,7 +124,11 @@ func (a *app) launchSub(sub int) {
 	if wine {
 		var cmd *exec.Cmd
 		if !contains(a.lin, a.ex[sub]) {
-			cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[sub]+"\"")
+			if comEnbld {
+				cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; wine \""+a.ex[sub]+"\"")
+			} else {
+				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[sub]+"\"")
+			}
 		} else {
 			if comEnbld {
 				cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
@@ -120,14 +139,15 @@ func (a *app) launchSub(sub int) {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Start()
-	}
-	var cmd *exec.Cmd
-	if comEnbld {
-		cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
 	} else {
-		cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
+		var cmd *exec.Cmd
+		if comEnbld {
+			cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
+		} else {
+			cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
+		}
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Start()
 	}
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Start()
 }

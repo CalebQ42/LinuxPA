@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 )
@@ -54,14 +56,16 @@ func ui(win *gtk.Window) {
 		wineCheck.SetSensitive(false)
 		wineCheck.SetTooltipText("Download wine to run windows apps")
 	}
+	wineCheck.SetActive(wine)
 	wineCheck.Connect("toggled", func() {
 		wine = wineCheck.GetActive()
 		for i := range ls {
-			catList.Remove(catList.GetRowAtIndex(i))
+			fmt.Println(len(ls) - i)
+			catList.Remove(catList.GetRowAtIndex(len(ls) - i - 1))
 		}
 		ls = getCatRows()
-		for i, v := range ls {
-			catList.Insert(v, i)
+		for _, v := range ls {
+			catList.Add(v)
 		}
 		catList.ShowAll()
 	})
@@ -69,8 +73,8 @@ func ui(win *gtk.Window) {
 	topLvl.Add(lrBox)
 	topLvl.PackEnd(botBox, false, true, 0)
 	win.Add(topLvl)
-	for i, v := range ls {
-		catList.Insert(v, i)
+	for _, v := range ls {
+		catList.Add(v)
 	}
 	catList.Connect("row-selected", func() {
 		store.Clear()
