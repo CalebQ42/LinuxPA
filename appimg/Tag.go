@@ -2,28 +2,26 @@ package appimg
 
 import "strings"
 
-//Tag is a bbCode tag that is properly processed.
-type Tag struct {
+type tag struct {
 	typ    string
 	end    bool
 	params map[string]string
 	index  [2]int
+	Meat   string
 }
 
-//Value returns the value of a parameter of the bbCode tag. Starting parameters
-//is under "starting". Parameter names are always in lowercase
-func (t *Tag) Value(param string) string {
+func (t *tag) value(param string) string {
 	return t.params[param]
 }
 
-func (t *Tag) setValue(param, value string) {
+func (t *tag) setValue(param, value string) {
 	if t.params == nil {
 		t.params = make(map[string]string)
 	}
 	t.params[strings.TrimSpace(strings.ToLower(param))] = strings.TrimSpace(value)
 }
 
-func (t *Tag) process(bbtag string) {
+func (t *tag) process(bbtag string) {
 	if strings.HasPrefix(bbtag, "/") {
 		t.end = true
 		t.typ = strings.ToLower(strings.TrimPrefix(bbtag[:len(bbtag)-1], "/"))
@@ -68,7 +66,7 @@ func (t *Tag) process(bbtag string) {
 	t.processFurther(bbtag)
 }
 
-func (t *Tag) processFurther(further string) {
+func (t *tag) processFurther(further string) {
 	further = strings.TrimSpace(further)
 	for i := 0; i < len(further); i++ {
 		switch further[i] {

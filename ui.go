@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/CalebQ42/LinuxPA/appimg"
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 )
@@ -18,8 +19,11 @@ func ui(win *gtk.Window) {
 	settings.Connect("clicked", func() {
 		settingsUI()
 	})
-	settings.SetTooltipText("Settings (Coming Soon!)")
+	settings.SetTooltipText("Settings")
+	dnl, _ := gtk.ButtonNewFromIconName("emblem-downloads", gtk.ICON_SIZE_SMALL_TOOLBAR)
+	dnl.SetTooltipText("Download Apps")
 	header.PackStart(settings)
+	header.PackEnd(dnl)
 	win.SetTitlebar(header)
 	topLvl, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	lrBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 5)
@@ -117,6 +121,15 @@ func ui(win *gtk.Window) {
 				}
 			}
 		}
+	})
+	dnl.Connect("clicked", func() {
+		appimg.ShowUI(func() {
+			store.Clear()
+			ls = getCatRows()
+			for _, v := range ls {
+				catList.Add(v)
+			}
+		})
 	})
 }
 

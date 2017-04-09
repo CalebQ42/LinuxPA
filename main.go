@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/gotk3/gotk3/gtk"
 )
@@ -24,6 +25,7 @@ var (
 )
 
 func main() {
+	runtime.GOMAXPROCS(4)
 	os.MkdirAll("PortableApps/LinuxPACom", 0777)
 	master = make(map[string][]app)
 	linmaster = make(map[string][]app)
