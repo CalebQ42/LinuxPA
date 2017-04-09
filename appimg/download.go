@@ -28,6 +28,7 @@ func downloadApp(parent *gtk.Window, ap appimg) {
 	box.Add(spn)
 	box.Add(lbl)
 	win.Add(box)
+	win.SetPosition(gtk.WIN_POS_CENTER_ON_PARENT)
 	win.ShowAll()
 	win.Show()
 	go func(win *gtk.Window, ap appimg) {
@@ -38,7 +39,7 @@ func downloadApp(parent *gtk.Window, ap appimg) {
 				return nil
 			},
 		}
-		resp, err := check.Get(urlBase + ap.url)
+		resp, err := check.Get(urlBase + ap.name)
 		if err != nil {
 			fmt.Println(err)
 			return

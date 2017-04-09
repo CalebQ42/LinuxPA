@@ -170,7 +170,7 @@ func getIcon(fold string) *gdk.Pixbuf {
 		pic = fold + "/appicon.png"
 	} else {
 		img, _ := gtk.ImageNewFromIconName("application-x-executable", gtk.ICON_SIZE_BUTTON)
-		buf, _ := img.GetPixbuf().ScaleSimple(32, 32, gdk.INTERP_BILINEAR)
+		buf := img.GetPixbuf()
 		return buf
 	}
 	img, _ := gtk.ImageNewFromFile(pic)

@@ -40,6 +40,7 @@ func ShowUI(clsFunc func()) {
 			downloadApp(win, apps[appList.GetSelectedRow().GetIndex()])
 		}
 	})
+	win.SetPosition(gtk.WIN_POS_CENTER_ON_PARENT)
 	win.ShowAll()
 	win.Show()
 	getList(win, apch)
@@ -56,7 +57,7 @@ func ShowUI(clsFunc func()) {
 }
 
 func getList(parent *gtk.Window, apch chan appimg) {
-	win, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+	win, _ := gtk.WindowNew(gtk.WINDOW_POPUP)
 	win.SetTransientFor(parent)
 	win.SetDestroyWithParent(true)
 	win.Connect("destroy", func() {
@@ -102,7 +103,7 @@ func getList(parent *gtk.Window, apch chan appimg) {
 		tgs := convert(string(btys))
 		for _, v := range tgs {
 			if strings.HasSuffix(strings.ToLower(v.Meat), ".appimage") {
-				apch <- newApp(v.value("href"), v.Meat)
+				apch <- newApp(v.Meat)
 			}
 		}
 		close(apch)
