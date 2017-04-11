@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	version = "2.1.0.0"
+	version = "2.1.0.5"
 	defIni  = ""
 )
 
