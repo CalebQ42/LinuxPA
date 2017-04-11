@@ -148,7 +148,9 @@ func getName(ini *os.File) string {
 
 func getIcon(fold string) *gdk.Pixbuf {
 	var pic string
-	if folder, err := os.Open(fold + "/App/AppInfo"); err == nil {
+	if _, err := os.Open(fold + "/appicon.png"); err == nil {
+		pic = fold + "/appicon.png"
+	} else if folder, err := os.Open(fold + "/App/AppInfo"); err == nil {
 		fis, _ := folder.Readdir(-1)
 		var pics []string
 		for _, v := range fis {
@@ -166,8 +168,6 @@ func getIcon(fold string) *gdk.Pixbuf {
 			}
 			pic = fold + "/App/AppInfo/" + pics[ind]
 		}
-	} else if _, err := os.Open(fold + "/appicon.png"); err == nil {
-		pic = fold + "/appicon.png"
 	} else {
 		img, _ := gtk.ImageNewFromIconName("application-x-executable", gtk.ICON_SIZE_BUTTON)
 		buf := img.GetPixbuf()
@@ -179,6 +179,9 @@ func getIcon(fold string) *gdk.Pixbuf {
 }
 
 func findInfo(fold string) *os.File {
+	if fi, err := os.Open(fold + "/appinfo.ini"); err == nil {
+		return fi
+	}
 	tmp, err := os.Open(fold + "/App/AppInfo")
 	if err == nil {
 		fis, _ := tmp.Readdirnames(-1)
@@ -188,9 +191,6 @@ func findInfo(fold string) *os.File {
 				return tmp
 			}
 		}
-	}
-	if fi, err := os.Open(fold + "/appinfo.ini"); err == nil {
-		return fi
 	}
 	return nil
 }

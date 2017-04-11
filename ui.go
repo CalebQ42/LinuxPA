@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/CalebQ42/LinuxPA/appimg"
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
@@ -55,6 +53,10 @@ func ui(win *gtk.Window) {
 	lrBox.Add(catScrl)
 	lrBox.Add(appScrl)
 	botBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 2)
+	botBox.SetMarginStart(10)
+	botBox.SetMarginEnd(10)
+	botBox.SetMarginTop(10)
+	botBox.SetMarginBottom(10)
 	wineCheck, _ := gtk.CheckButtonNewWithLabel("Show Windows apps (Wine)")
 	if !wineAvail {
 		wineCheck.SetSensitive(false)
@@ -63,8 +65,8 @@ func ui(win *gtk.Window) {
 	wineCheck.SetActive(wine)
 	wineCheck.Connect("toggled", func() {
 		wine = wineCheck.GetActive()
+		store.Clear()
 		for i := range ls {
-			fmt.Println(len(ls) - i)
 			catList.Remove(catList.GetRowAtIndex(len(ls) - i - 1))
 		}
 		ls = getCatRows()
@@ -73,7 +75,44 @@ func ui(win *gtk.Window) {
 		}
 		catList.ShowAll()
 	})
+	edit, _ := gtk.ButtonNewWithLabel("Edit App..")
+	edit.Connect("clicked", func() {
+		selec, _ := appsList.GetSelection()
+		_, it, ok := selec.GetSelected()
+		if ok {
+			pth, _ := store.GetPath(it)
+			ind := pth.GetIndices()
+			if wine {
+				appLnch := master[cats[catList.GetSelectedRow().GetIndex()]][ind[0]]
+				appLnch.edit(win, func() {
+					store.Clear()
+					for i := range ls {
+						catList.Remove(catList.GetRowAtIndex(len(ls) - i - 1))
+					}
+					ls = getCatRows()
+					for i, v := range ls {
+						catList.Insert(v, i)
+					}
+					catList.ShowAll()
+				})
+			} else {
+				appLnch := linmaster[lin[catList.GetSelectedRow().GetIndex()]][ind[0]]
+				appLnch.edit(win, func() {
+					store.Clear()
+					for i := range ls {
+						catList.Remove(catList.GetRowAtIndex(len(ls) - i - 1))
+					}
+					ls = getCatRows()
+					for i, v := range ls {
+						catList.Insert(v, i)
+					}
+					catList.ShowAll()
+				})
+			}
+		}
+	})
 	botBox.Add(wineCheck)
+	botBox.PackEnd(edit, false, false, 0)
 	topLvl.Add(lrBox)
 	topLvl.PackEnd(botBox, false, true, 0)
 	win.Add(topLvl)
@@ -105,30 +144,39 @@ func ui(win *gtk.Window) {
 			ind := pth.GetIndices()
 			if len(ind) == 1 {
 				if wine {
-					app := master[cats[catList.GetSelectedRow().GetIndex()]][ind[0]]
-					app.launch()
+					appLnch := master[cats[catList.GetSelectedRow().GetIndex()]][ind[0]]
+					appLnch.launch()
 				} else {
-					app := linmaster[lin[catList.GetSelectedRow().GetIndex()]][ind[0]]
-					app.launch()
+					appLnch := linmaster[lin[catList.GetSelectedRow().GetIndex()]][ind[0]]
+					appLnch.launch()
 				}
 			} else if len(ind) == 2 {
 				if wine {
-					app := master[cats[catList.GetSelectedRow().GetIndex()]][ind[0]]
-					app.launchSub(ind[1])
+					appLnch := master[cats[catList.GetSelectedRow().GetIndex()]][ind[0]]
+					appLnch.launchSub(ind[1])
 				} else {
-					app := linmaster[lin[catList.GetSelectedRow().GetIndex()]][ind[0]]
-					app.launchSub(ind[1])
+					appLnch := linmaster[lin[catList.GetSelectedRow().GetIndex()]][ind[0]]
+					appLnch.launchSub(ind[1])
 				}
 			}
 		}
 	})
 	dnl.Connect("clicked", func() {
 		appimg.ShowUI(func() {
+			master = make(map[string][]app)
+			linmaster = make(map[string][]app)
+			cats = make([]string, 0)
+			lin = make([]string, 0)
+			setup()
 			store.Clear()
-			ls = getCatRows()
-			for _, v := range ls {
-				catList.Add(v)
+			for i := range ls {
+				catList.Remove(catList.GetRowAtIndex(len(ls) - i - 1))
 			}
+			ls = getCatRows()
+			for i, v := range ls {
+				catList.Insert(v, i)
+			}
+			catList.ShowAll()
 		})
 	})
 }
