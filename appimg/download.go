@@ -52,7 +52,7 @@ func downloadApp(parent *gtk.Window, ap appimg) {
 		} else if _, err = os.Open("PortableApps/" + name); err == nil {
 			foldName = "PortableApps/" + name
 		} else {
-			os.Mkdir("PortableApps/"+name, 0777)
+			os.Mkdir("PortableApps/"+name+"Portable", 0777)
 			foldName = "PortableApps/" + name
 		}
 		fil, err := os.Create(foldName + "/" + ap.name)

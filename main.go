@@ -14,13 +14,14 @@ const (
 )
 
 var (
-	master    map[string][]app
-	linmaster map[string][]app
-	cats      []string
-	lin       []string
-	wine      bool
-	comEnbld  bool
-	wineAvail bool
+	master       map[string][]app
+	linmaster    map[string][]app
+	cats         []string
+	lin          []string
+	wine         bool
+	comEnbld     bool
+	wineAvail    bool
+	portableHide bool
 )
 
 func main() {
@@ -61,6 +62,7 @@ func savePrefs() {
 	}
 	enc := gob.NewEncoder(fil)
 	enc.Encode(wine)
+	enc.Encode(portableHide)
 }
 
 func loadPrefs() {
@@ -70,6 +72,7 @@ func loadPrefs() {
 	}
 	dec := gob.NewDecoder(fil)
 	dec.Decode(&wine)
+	dec.Decode(&portableHide)
 }
 
 func contains(arr []string, str string) bool {

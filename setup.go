@@ -82,6 +82,9 @@ func processApp(fold string) (out app) {
 	if out.cat == "" {
 		out.cat = "Other"
 	}
+	if portableHide {
+		out.name = strings.TrimSuffix(out.name, "Portable")
+	}
 	out.icon = getIcon(fold)
 	folder, _ := os.Open(fold)
 	fis, _ := folder.Readdirnames(-1)

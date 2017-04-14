@@ -14,9 +14,6 @@ func ui(win *gtk.Window) {
 	header.SetTitle("LinuxPA")
 	header.SetSubtitle("PortableApps.com type launcher")
 	settings, _ := gtk.ButtonNewFromIconName("applications-system", gtk.ICON_SIZE_SMALL_TOOLBAR)
-	settings.Connect("clicked", func() {
-		settingsUI()
-	})
 	settings.SetTooltipText("Settings")
 	dnl, _ := gtk.ButtonNewFromIconName("emblem-downloads", gtk.ICON_SIZE_SMALL_TOOLBAR)
 	dnl.SetTooltipText("Download Apps")
@@ -57,24 +54,6 @@ func ui(win *gtk.Window) {
 	botBox.SetMarginEnd(10)
 	botBox.SetMarginTop(10)
 	botBox.SetMarginBottom(10)
-	wineCheck, _ := gtk.CheckButtonNewWithLabel("Show Windows apps (Wine)")
-	if !wineAvail {
-		wineCheck.SetSensitive(false)
-		wineCheck.SetTooltipText("Download wine to run windows apps")
-	}
-	wineCheck.SetActive(wine)
-	wineCheck.Connect("toggled", func() {
-		wine = wineCheck.GetActive()
-		store.Clear()
-		for i := range ls {
-			catList.Remove(catList.GetRowAtIndex(len(ls) - i - 1))
-		}
-		ls = getCatRows()
-		for _, v := range ls {
-			catList.Add(v)
-		}
-		catList.ShowAll()
-	})
 	edit, _ := gtk.ButtonNewWithLabel("Edit App..")
 	edit.Connect("clicked", func() {
 		selec, _ := appsList.GetSelection()
@@ -111,7 +90,6 @@ func ui(win *gtk.Window) {
 			}
 		}
 	})
-	botBox.Add(wineCheck)
 	botBox.PackEnd(edit, false, false, 0)
 	topLvl.Add(lrBox)
 	topLvl.PackEnd(botBox, false, true, 0)
@@ -168,6 +146,19 @@ func ui(win *gtk.Window) {
 			cats = make([]string, 0)
 			lin = make([]string, 0)
 			setup()
+			store.Clear()
+			for i := range ls {
+				catList.Remove(catList.GetRowAtIndex(len(ls) - i - 1))
+			}
+			ls = getCatRows()
+			for i, v := range ls {
+				catList.Insert(v, i)
+			}
+			catList.ShowAll()
+		})
+	})
+	settings.Connect("clicked", func() {
+		settingsUI(win, func() {
 			store.Clear()
 			for i := range ls {
 				catList.Remove(catList.GetRowAtIndex(len(ls) - i - 1))

@@ -7,10 +7,16 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-func settingsUI() {
+func settingsUI(parent *gtk.Window, onExit func()) {
 	win, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+	win.SetTransientFor(parent)
+	parent.SetSensitive(false)
 	win.SetDefaultSize(600, 300)
-	win.SetPosition(gtk.WIN_POS_CENTER)
+	win.SetPosition(gtk.WIN_POS_CENTER_ON_PARENT)
+	win.Connect("destroy", func() {
+		parent.SetSensitive(true)
+		onExit()
+	})
 	comTagTbl, _ := gtk.TextTagTableNew()
 	comBuf, _ := gtk.TextBufferNew(comTagTbl)
 	ntbk, _ := gtk.NotebookNew()
@@ -21,7 +27,6 @@ func settingsUI() {
 	gnrl.SetMarginBottom(10)
 	dlWine, _ := gtk.ButtonNewWithLabel("Download Wine")
 	wineLbl, _ := gtk.LabelNew("PortableApps/LinuxPACom/Wine present")
-	gnrl.Add(wineLbl)
 	dlWine.Connect("clicked", func() {
 		cb := make(chan bool)
 		downloadWine(win, cb)
@@ -37,7 +42,29 @@ func settingsUI() {
 		dlWine.SetSensitive(false)
 		dlWine.SetTooltipText("common.sh needed")
 	}
+	pthdCheck, _ := gtk.CheckButtonNewWithLabel("Hide \"Portable\" from app name")
+	pthdCheck.Connect("toggled", func() {
+		portableHide = pthdCheck.GetActive()
+		master = make(map[string][]app)
+		linmaster = make(map[string][]app)
+		cats = make([]string, 0)
+		lin = make([]string, 0)
+		setup()
+	})
+	wineCheck, _ := gtk.CheckButtonNewWithLabel("Show Windows apps (Wine)")
+	if !wineAvail {
+		wineCheck.SetSensitive(false)
+		wineCheck.SetTooltipText("Download wine to run windows apps")
+	}
+	wineCheck.SetActive(wine)
+	wineCheck.Connect("toggled", func() {
+		wine = wineCheck.GetActive()
+	})
+	pthdCheck.SetActive(portableHide)
+	gnrl.Add(wineLbl)
 	gnrl.Add(dlWine)
+	gnrl.Add(pthdCheck)
+	gnrl.Add(wineCheck)
 	ntbk.AppendPage(gnrl, getLabel("General"))
 	com, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
 	com.SetMarginStart(10)
@@ -51,7 +78,6 @@ func settingsUI() {
 	hScroll, _ := gtk.AdjustmentNew(0, 0, 0, 0, 0, 0)
 	comScrl, _ := gtk.ScrolledWindowNew(hScroll, vScroll)
 	comScrl.Add(comEdit)
-	com.Add(comScrl)
 	svBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 5)
 	sv, _ := gtk.ButtonNewWithLabel("Save")
 	sv.Connect("clicked", func() {
@@ -65,6 +91,7 @@ func settingsUI() {
 	})
 	svBox.Add(sv)
 	svBox.Add(cnl)
+	com.Add(comScrl)
 	com.Add(svBox)
 	ntbk.AppendPage(com, getLabel("common.sh"))
 	win.Add(ntbk)
