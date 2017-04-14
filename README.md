@@ -31,5 +31,4 @@ Photos are found [Here](https://goo.gl/photos/VtBUL6DyZTMidj5n6)
 # TODO (Might be in order)
 1. MAKE IT BETTER  
 1. Add updater for .AppImage files  
-1. Download .AppImage files (maybe)  
 1. Check if all apps are closed when it closes and ask if you want to force stop the apps.  
