@@ -140,7 +140,7 @@ func ui(win *gtk.Window) {
 		}
 	})
 	dnl.Connect("clicked", func() {
-		appimg.ShowUI(func() {
+		appimg.ShowUI(versionNewest, func() {
 			master = make(map[string][]app)
 			linmaster = make(map[string][]app)
 			cats = make([]string, 0)

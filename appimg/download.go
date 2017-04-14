@@ -19,7 +19,7 @@ func downloadApp(parent *gtk.Window, ap appimg) {
 	})
 	spn, _ := gtk.SpinnerNew()
 	spn.Start()
-	lbl, _ := gtk.LabelNew("Downloading " + ap.name + "...")
+	lbl, _ := gtk.LabelNew("Downloading " + ap.full + "...")
 	box, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
 	box.SetMarginStart(10)
 	box.SetMarginEnd(10)
@@ -39,13 +39,13 @@ func downloadApp(parent *gtk.Window, ap appimg) {
 				return nil
 			},
 		}
-		resp, err := check.Get(urlBase + ap.name)
+		resp, err := check.Get(urlBase + ap.full)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		defer resp.Body.Close()
-		name := strings.Split(ap.name, "-")[0]
+		name := strings.Split(ap.full, "-")[0]
 		var foldName string
 		if _, err = os.Open("PortableApps/" + name + "Portable"); err == nil {
 			foldName = "PortableApps/" + name + "Portable"
@@ -55,12 +55,13 @@ func downloadApp(parent *gtk.Window, ap appimg) {
 			os.Mkdir("PortableApps/"+name+"Portable", 0777)
 			foldName = "PortableApps/" + name
 		}
-		fil, err := os.Create(foldName + "/" + ap.name)
+		os.Remove(foldName + "/" + ap.full)
+		fil, err := os.Create(foldName + "/" + ap.full)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		io.Copy(fil, resp.Body)
-		_ = fil.Chmod(0777)
+		fil.Chmod(0777)
 	}(win, ap)
 }

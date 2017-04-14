@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/gotk3/gotk3/glib"
@@ -16,7 +17,7 @@ const (
 )
 
 //ShowUI shows the list of possible AppImages to be downloaded in a gtk.Window
-func ShowUI(clsFunc func()) {
+func ShowUI(newestVersionOnly bool, clsFunc func()) {
 	win, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
 	win.Connect("destroy", func() {
 		clsFunc()
@@ -45,13 +46,44 @@ func ShowUI(clsFunc func()) {
 	win.Show()
 	getList(win, apch)
 	go func(win *gtk.Window, apch chan appimg, list *gtk.ListBox) {
-		for i := range apch {
-			glib.IdleAdd(func(list *gtk.ListBox, i appimg) {
-				lbl, _ := gtk.LabelNew(i.name)
-				list.Add(lbl)
-				apps = append(apps, i)
-				lbl.Show()
-			}, list, i)
+		if newestVersionOnly {
+			imgs := make([]appimg, 0)
+			a := make(map[string][]appimg)
+			names := make([]string, 0)
+			for i := range apch {
+				imgs = append(imgs, i)
+			}
+			for i, v := range imgs {
+				sp := strings.Split(v.full, "-")
+				if len(sp) >= 2 {
+					vers := sp[1]
+					removeLetters(vers)
+					imgs[i].version = vers
+					imgs[i].name = sp[0]
+					if _, ok := a[imgs[i].name]; !ok {
+						names = append(names, imgs[i].name)
+					}
+					a[imgs[i].name] = append(a[imgs[i].name], imgs[i])
+				}
+			}
+			sort.Strings(names)
+			for _, name := range names {
+				glib.IdleAdd(func(name string, list *gtk.ListBox, i appimg) {
+					lbl, _ := gtk.LabelNew(name)
+					list.Add(lbl)
+					apps = append(apps, i)
+					lbl.Show()
+				}, name, list, a[name][compareVersions(a[name])])
+			}
+		} else {
+			for i := range apch {
+				glib.IdleAdd(func(list *gtk.ListBox, i appimg) {
+					lbl, _ := gtk.LabelNew(i.full)
+					list.Add(lbl)
+					apps = append(apps, i)
+					lbl.Show()
+				}, list, i)
+			}
 		}
 	}(win, apch, appList)
 }

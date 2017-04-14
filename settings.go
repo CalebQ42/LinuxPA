@@ -3,7 +3,9 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"os/exec"
 
+	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 )
 
@@ -26,6 +28,7 @@ func settingsUI(parent *gtk.Window, onExit func()) {
 	gnrl.SetMarginTop(10)
 	gnrl.SetMarginBottom(10)
 	dlWine, _ := gtk.ButtonNewWithLabel("Download Wine")
+	wineCheck, _ := gtk.CheckButtonNewWithLabel("Show Windows apps (Wine)")
 	wineLbl, _ := gtk.LabelNew("PortableApps/LinuxPACom/Wine present")
 	dlWine.Connect("clicked", func() {
 		cb := make(chan bool)
@@ -36,6 +39,22 @@ func settingsUI(parent *gtk.Window, onExit func()) {
 				setupTxt(comBuf)
 				wineLbl.Show()
 			}
+			if _, err := os.Open("PortableApps/LinuxPACom/Wine"); os.IsNotExist(err) {
+				if _, errd := exec.LookPath("wine"); errd == nil {
+					wineAvail = true
+				}
+			} else if err == nil {
+				wineAvail = true
+			}
+			glib.IdleAdd(func() {
+				if !wineAvail {
+					wineCheck.SetSensitive(false)
+					wineCheck.SetTooltipText("Download wine to run windows apps")
+				} else {
+					wineCheck.SetSensitive(true)
+					wineCheck.SetTooltipText("")
+				}
+			})
 		}()
 	})
 	if !comEnbld {
@@ -51,7 +70,7 @@ func settingsUI(parent *gtk.Window, onExit func()) {
 		lin = make([]string, 0)
 		setup()
 	})
-	wineCheck, _ := gtk.CheckButtonNewWithLabel("Show Windows apps (Wine)")
+	pthdCheck.SetActive(portableHide)
 	if !wineAvail {
 		wineCheck.SetSensitive(false)
 		wineCheck.SetTooltipText("Download wine to run windows apps")
@@ -60,11 +79,16 @@ func settingsUI(parent *gtk.Window, onExit func()) {
 	wineCheck.Connect("toggled", func() {
 		wine = wineCheck.GetActive()
 	})
-	pthdCheck.SetActive(portableHide)
+	versCheck, _ := gtk.CheckButtonNewWithLabel("Only show newest app version in downloads (A bit iffy ATM)")
+	versCheck.SetActive(versionNewest)
+	versCheck.Connect("toggled", func() {
+		versionNewest = versCheck.GetActive()
+	})
 	gnrl.Add(wineLbl)
 	gnrl.Add(dlWine)
 	gnrl.Add(pthdCheck)
 	gnrl.Add(wineCheck)
+	gnrl.Add(versCheck)
 	ntbk.AppendPage(gnrl, getLabel("General"))
 	com, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
 	com.SetMarginStart(10)

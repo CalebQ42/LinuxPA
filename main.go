@@ -9,19 +9,20 @@ import (
 )
 
 const (
-	version = "2.1.0.5"
+	version = "2.1.1.0"
 	defIni  = ""
 )
 
 var (
-	master       map[string][]app
-	linmaster    map[string][]app
-	cats         []string
-	lin          []string
-	wine         bool
-	comEnbld     bool
-	wineAvail    bool
-	portableHide bool
+	master        map[string][]app
+	linmaster     map[string][]app
+	cats          []string
+	lin           []string
+	wine          bool
+	comEnbld      bool
+	wineAvail     bool
+	portableHide  bool
+	versionNewest = true
 )
 
 func main() {
@@ -53,16 +54,24 @@ func uiStart() {
 }
 
 func savePrefs() {
-	fil, err := os.Open("PortableApps/LinuxPACom/Prefs.gob")
-	if os.IsNotExist(err) {
-		fil, err = os.Create("PortableApps/LinuxPACom/Prefs.gob")
-	}
+	os.Remove("PortableApps/LinuxPACom/Prefs.gob")
+	fil, err := os.Create("PortableApps/LinuxPACom/Prefs.gob")
 	if err != nil {
 		return
 	}
 	enc := gob.NewEncoder(fil)
-	enc.Encode(wine)
-	enc.Encode(portableHide)
+	err = enc.Encode(wine)
+	if err != nil {
+		return
+	}
+	err = enc.Encode(portableHide)
+	if err != nil {
+		return
+	}
+	err = enc.Encode(versionNewest)
+	if err != nil {
+		return
+	}
 }
 
 func loadPrefs() {
@@ -71,8 +80,18 @@ func loadPrefs() {
 		return
 	}
 	dec := gob.NewDecoder(fil)
-	dec.Decode(&wine)
-	dec.Decode(&portableHide)
+	err = dec.Decode(&wine)
+	if err != nil {
+		return
+	}
+	err = dec.Decode(&portableHide)
+	if err != nil {
+		return
+	}
+	err = dec.Decode(&versionNewest)
+	if err != nil {
+		return
+	}
 }
 
 func contains(arr []string, str string) bool {

@@ -1,11 +1,13 @@
 package appimg
 
 type appimg struct {
-	name string
+	full    string
+	name    string
+	version string
 }
 
 func newApp(name string) appimg {
 	var out appimg
-	out.name = name
+	out.full = name
 	return out
 }
