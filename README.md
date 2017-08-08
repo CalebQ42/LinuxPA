@@ -29,6 +29,7 @@ Unfortunately Linux, by default, doesn't support running executables off of FAT 
 Photos are found [Here](https://goo.gl/photos/VtBUL6DyZTMidj5n6). The screenshots are with the adapta gtk theme
 
 # TODO (Might be in order)
-1. MAKE IT BETTER  
-1. Add updater for .AppImage files  
-1. Check if all apps are closed when it closes and ask if you want to force stop the apps.  
+1. MAKE IT BETTER  
+1. Ask if you want to update  
+1. Better appimage support in general   
+1. Check if all apps are closed when it closes and ask if you want to force stop the apps. . 
