@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -14,8 +15,9 @@ import (
 )
 
 const (
-	versionURL  = "https://www.dropbox.com/s/a0xizzo0a4vsfqt/Version?dl=1"
-	downloadURL = "https://github.com/CalebQ42/LinuxPA/releases/download/vXXX/LinuxPA"
+	versionURL   = "https://www.dropbox.com/s/a0xizzo0a4vsfqt/Version?dl=1"
+	downloadURL  = "https://github.com/CalebQ42/LinuxPA/releases/download/vXXX/LinuxPA"
+	changelogURL = "https://www.dropbox.com/s/nmbk318er5kej5h/Changelog?dl=1"
 )
 
 //Thanks to https://www.socketloop.com/tutorials/golang-download-file-example
@@ -52,6 +54,38 @@ func getVersionFileInfo() string {
 	}
 	rdr := bufio.NewReader(fil)
 	out, _, _ := rdr.ReadLine()
+	return string(out)
+}
+
+func changelogDL() (bool, error) {
+	changelogFile, err := os.Create("PortableApps/LinuxPACom/Changelog")
+	if err != nil {
+		return false, err
+	}
+	changelogFile.Chmod(0777)
+	check := http.Client{
+		CheckRedirect: func(r *http.Request, via []*http.Request) error {
+			r.URL.Opaque = r.URL.Path
+			return nil
+		},
+	}
+	response, err := check.Get(changelogURL)
+	if err != nil {
+		return false, err
+	}
+	_, err = io.Copy(changelogFile, response.Body)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func getChangelog() string {
+	fil, err := os.Open("PortableApps/LinuxPACom/Changelog")
+	if err != nil {
+		return "Error!"
+	}
+	out, _ := ioutil.ReadAll(fil)
 	return string(out)
 }
 
@@ -111,13 +145,69 @@ func downloadUpdate(newVersion string) (bool, error) {
 	return true, nil
 }
 
-func update(win *gtk.Window) {
+func update(win *gtk.Window, forced bool) {
+	stat, err := versionDL()
+	if stat {
+		res := getVersionFileInfo()
+		if res != "Error!" {
+			stat, err = checkForUpdate(res)
+			if stat || forced {
+				stat, err = changelogDL()
+				if stat {
+					updateWin, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+					updateWin.SetTransientFor(win)
+					updateWin.SetPosition(gtk.WIN_POS_CENTER)
+					topLvl, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
+					lbl, _ := gtk.LabelNew("There's a new update! Here's the changelog:")
+					tagTbl, _ := gtk.TextTagTableNew()
+					buf, _ := gtk.TextBufferNew(tagTbl)
+					tv, _ := gtk.TextViewNewWithBuffer(buf)
+					tv.SetEditable(false)
+					buf.SetText(getChangelog())
+					butBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 5)
+					upBut, _ := gtk.ButtonNewWithLabel("Update")
+					upBut.Connect("clicked", func() {
+						updateWin.Close()
+						actuallyUpdate(win, forced)
+					})
+					cnlBut, _ := gtk.ButtonNewWithLabel("Cancel")
+					cnlBut.Connect("clicked", func() {
+						updateWin.Close()
+					})
+					butBox.Add(upBut)
+					butBox.Add(cnlBut)
+					topLvl.Add(lbl)
+					topLvl.Add(tv)
+					topLvl.Add(butBox)
+					topLvl.SetMarginBottom(10)
+					topLvl.SetMarginEnd(10)
+					topLvl.SetMarginStart(10)
+					topLvl.SetMarginTop(10)
+					updateWin.Add(topLvl)
+					updateWin.ShowAll()
+					updateWin.Show()
+				} else {
+					fmt.Println(err)
+				}
+			} else {
+				fmt.Println(err)
+			}
+		} else {
+			fmt.Println("Failed Version File Info")
+		}
+	} else {
+		fmt.Println(err)
+	}
+}
+
+func actuallyUpdate(win *gtk.Window, forced bool) {
 	updateWin, _ := gtk.WindowNew(gtk.WINDOW_POPUP)
 	updateWin.SetTransientFor(win)
+	updateWin.SetSizeRequest(150, 50)
 	topLvl, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
 	spin, _ := gtk.SpinnerNew()
 	spin.Start()
-	lbl, _ := gtk.LabelNew("Checking for updates")
+	lbl, _ := gtk.LabelNew("Updating")
 	topLvl.Add(spin)
 	topLvl.Add(lbl)
 	topLvl.SetMarginBottom(10)
@@ -135,8 +225,7 @@ func update(win *gtk.Window) {
 			res := getVersionFileInfo()
 			if res != "Error!" {
 				stat, err = checkForUpdate(res)
-				if stat {
-					lbl.SetText("Updating!")
+				if stat || forced {
 					downloadUpdate(res)
 					win.Close()
 					cmd := exec.Command("./LinuxPA")

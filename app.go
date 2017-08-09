@@ -53,6 +53,10 @@ func (a *app) launch() {
 					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
 				}
 			} else {
+				if paDirs && strings.HasSuffix(strings.ToLower(a.ex[0]), ".appimage") {
+					os.Mkdir(a.dir+"/"+a.ex[0]+".home", 0777)
+					os.Mkdir(a.dir+"/"+a.ex[0]+".config", 0777)
+				}
 				if comEnbld {
 					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
 				} else {
@@ -64,8 +68,12 @@ func (a *app) launch() {
 			cmd.Start()
 		} else {
 			var cmd *exec.Cmd
+			if paDirs && strings.HasSuffix(strings.ToLower(a.ex[0]), ".appimage") {
+				os.Mkdir(a.dir+"/"+a.ex[0]+".home", 0777)
+				os.Mkdir(a.dir+"/"+a.ex[0]+".config", 0777)
+			}
 			if comEnbld {
-				cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
+				cmd = exec.Command("/bin/sh", "-c", "export PANAME="+a.ex[0]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
 			} else {
 				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
 			}
@@ -90,8 +98,12 @@ func (a *app) launch() {
 						break
 					}
 				}
+				if paDirs && strings.HasSuffix(strings.ToLower(a.ex[ind]), ".appimage") {
+					os.Mkdir(a.dir+"/"+a.ex[ind]+".home", 0777)
+					os.Mkdir(a.dir+"/"+a.ex[ind]+".config", 0777)
+				}
 				if comEnbld {
-					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", "export PANAME="+a.ex[ind]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
 				} else {
 					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
 				}
@@ -109,8 +121,12 @@ func (a *app) launch() {
 					}
 				}
 				var cmd *exec.Cmd
+				if paDirs && strings.HasSuffix(strings.ToLower(a.ex[ind]), ".appimage") {
+					os.Mkdir(a.dir+"/"+a.ex[ind]+".home", 0777)
+					os.Mkdir(a.dir+"/"+a.ex[ind]+".config", 0777)
+				}
 				if comEnbld {
-					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", "export PANAME="+a.ex[ind]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
 				} else {
 					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
 				}
@@ -132,8 +148,12 @@ func (a *app) launchSub(sub int) {
 				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[sub]+"\"")
 			}
 		} else {
+			if paDirs && strings.HasSuffix(strings.ToLower(a.ex[sub]), ".appimage") {
+				os.Mkdir(a.dir+"/"+a.ex[sub]+".home", 0777)
+				os.Mkdir(a.dir+"/"+a.ex[sub]+".config", 0777)
+			}
 			if comEnbld {
-				cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
+				cmd = exec.Command("/bin/sh", "-c", "export PANAME="+a.ex[sub]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
 			} else {
 				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
 			}
@@ -143,8 +163,12 @@ func (a *app) launchSub(sub int) {
 		cmd.Start()
 	} else {
 		var cmd *exec.Cmd
+		if paDirs && strings.HasSuffix(strings.ToLower(a.ex[sub]), ".appimage") {
+			os.Mkdir(a.dir+"/"+a.ex[sub]+".home", 0777)
+			os.Mkdir(a.dir+"/"+a.ex[sub]+".config", 0777)
+		}
 		if comEnbld {
-			cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
+			cmd = exec.Command("/bin/sh", "-c", "export PANAME="+a.ex[sub]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
 		} else {
 			cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
 		}

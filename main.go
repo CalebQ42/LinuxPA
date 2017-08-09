@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/gob"
+	"flag"
 	"fmt"
 	"os"
 
@@ -9,7 +10,7 @@ import (
 )
 
 const (
-	version = "2.1.1.0"
+	version = "2.1.2.0"
 	defIni  = ""
 )
 
@@ -23,16 +24,19 @@ var (
 	wineAvail     bool
 	portableHide  bool
 	versionNewest = true
+	paDirs        = true
 )
 
 func main() {
+	forced := flag.Bool("force-update", false, "Force the update dialog to be shown")
+	flag.Parse()
 	os.MkdirAll("PortableApps/LinuxPACom", 0777)
 	master = make(map[string][]app)
 	linmaster = make(map[string][]app)
-	uiStart()
+	uiStart(*forced)
 }
 
-func uiStart() {
+func uiStart(forced bool) {
 	gtk.Init(nil)
 	setup()
 	win, err := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
@@ -49,7 +53,7 @@ func uiStart() {
 	ui(win)
 	win.ShowAll()
 	win.Show()
-	update(win)
+	update(win, forced)
 	gtk.Main()
 }
 
@@ -72,6 +76,10 @@ func savePrefs() {
 	if err != nil {
 		return
 	}
+	err = enc.Encode(paDirs)
+	if err != nil {
+		return
+	}
 }
 
 func loadPrefs() {
@@ -89,6 +97,10 @@ func loadPrefs() {
 		return
 	}
 	err = dec.Decode(&versionNewest)
+	if err != nil {
+		return
+	}
+	err = dec.Decode(&paDirs)
 	if err != nil {
 		return
 	}

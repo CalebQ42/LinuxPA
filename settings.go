@@ -9,6 +9,10 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
+const (
+	commonHelp = "The common.sh is run before every app is launched and allows you to set variables such as $HOME. For directories, ALWAYS start the directory with $PWD which points to the directory where LinuxPA is. To allow for greater customization and isolation, you can use the $PANAME variable which is the filename of the executable you're using."
+)
+
 func settingsUI(parent *gtk.Window, onExit func()) {
 	win, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
 	win.SetTransientFor(parent)
@@ -84,11 +88,17 @@ func settingsUI(parent *gtk.Window, onExit func()) {
 	versCheck.Connect("toggled", func() {
 		versionNewest = versCheck.GetActive()
 	})
+	paDirsCheck, _ := gtk.CheckButtonNewWithLabel("Create .home and .config directories for AppImages")
+	paDirsCheck.SetActive(paDirs)
+	paDirsCheck.Connect("toggled", func() {
+		paDirs = paDirsCheck.GetActive()
+	})
 	gnrl.Add(wineLbl)
 	gnrl.Add(dlWine)
 	gnrl.Add(pthdCheck)
 	gnrl.Add(wineCheck)
 	gnrl.Add(versCheck)
+	gnrl.Add(paDirsCheck)
 	ntbk.AppendPage(gnrl, getLabel("General"))
 	com, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
 	com.SetMarginStart(10)
@@ -113,8 +123,25 @@ func settingsUI(parent *gtk.Window, onExit func()) {
 	cnl.Connect("clicked", func() {
 		setupTxt(comBuf)
 	})
+	info, _ := gtk.ButtonNewWithLabel("Info")
+	info.Connect("clicked", func() {
+		infoBox, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+		infoBox.SetTransientFor(parent)
+		infoBox.SetDefaultSize(300, 80)
+		infoBox.SetName("common.sh info")
+		infoBox.SetPosition(gtk.WIN_POS_CENTER_ON_PARENT)
+		box, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
+		infolbl, _ := gtk.LabelNew(commonHelp)
+		infolbl.SetLineWrap(true)
+		infolbl.SetSizeRequest(200, 50)
+		box.Add(infolbl)
+		infoBox.Add(box)
+		infoBox.ShowAll()
+		infoBox.Show()
+	})
 	svBox.Add(sv)
 	svBox.Add(cnl)
+	svBox.Add(info)
 	com.Add(comScrl)
 	com.Add(svBox)
 	ntbk.AppendPage(com, getLabel("common.sh"))
@@ -136,8 +163,25 @@ func settingsUI(parent *gtk.Window, onExit func()) {
 				dlWine.SetTooltipText("")
 			}
 		})
+		in, _ := gtk.ButtonNewWithLabel("Info")
+		in.Connect("clicked", func() {
+			infoBox, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+			infoBox.SetTransientFor(parent)
+			infoBox.SetDefaultSize(300, 80)
+			infoBox.SetName("common.sh info")
+			infoBox.SetPosition(gtk.WIN_POS_CENTER_ON_PARENT)
+			box, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
+			infolbl, _ := gtk.LabelNew(commonHelp)
+			infolbl.SetLineWrap(true)
+			infolbl.SetSizeRequest(200, 50)
+			box.Add(infolbl)
+			infoBox.Add(box)
+			infoBox.ShowAll()
+			infoBox.Show()
+		})
 		mkCom.Show()
 		com.Add(mkCom)
+		com.Add(in)
 	} else {
 		setupTxt(comBuf)
 	}

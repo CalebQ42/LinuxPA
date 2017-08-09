@@ -39,6 +39,7 @@ func downloadApp(parent *gtk.Window, ap appimg) {
 				return nil
 			},
 		}
+		fmt.Println(urlBase + ap.full)
 		resp, err := check.Get(urlBase + ap.full)
 		if err != nil {
 			fmt.Println(err)
