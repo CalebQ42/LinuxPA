@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	commonHelp = "The common.sh is run before every app is launched and allows you to set variables such as $HOME. For directories, ALWAYS start the directory with $PWD which points to the directory where LinuxPA is. To allow for greater customization and isolation, you can use the $PANAME variable which is the filename of the executable you're using."
+	commonHelp = "The common.sh is run before every app is launched and allows you to set variables such as $HOME. For directories, ALWAYS start the directory with $PWD which points to the directory where LinuxPA is. To allow for greater customization and isolation, you can use the $FILENAME variable which is the filename of the executable you're using and the $APPNAME variable which is the name of the app being lanched."
 )
 
 func settingsUI(parent *gtk.Window, onExit func()) {

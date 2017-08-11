@@ -25,7 +25,11 @@ type app struct {
 func (a *app) getTreeIter(store *gtk.TreeStore) *gtk.TreeIter {
 	it := store.Append(nil)
 	store.SetValue(it, 0, a.icon)
-	store.SetValue(it, 1, a.name)
+	if portableHide {
+		store.SetValue(it, 1, strings.TrimSuffix(a.name, "Portable"))
+	} else {
+		store.SetValue(it, 1, a.name)
+	}
 	if len(a.ex) > 1 {
 		if wine {
 			for _, v := range a.ex {
@@ -48,7 +52,7 @@ func (a *app) launch() {
 			var cmd *exec.Cmd
 			if !contains(a.lin, a.ex[0]) {
 				if comEnbld {
-					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", "export APPNAME="+a.name+";export FILENAME="+a.ex[0]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
 				} else {
 					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
 				}
@@ -58,7 +62,7 @@ func (a *app) launch() {
 					os.Mkdir(a.dir+"/"+a.ex[0]+".config", 0777)
 				}
 				if comEnbld {
-					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", "export APPNAME="+a.name+";export FILENAME="+a.ex[0]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
 				} else {
 					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
 				}
@@ -73,7 +77,7 @@ func (a *app) launch() {
 				os.Mkdir(a.dir+"/"+a.ex[0]+".config", 0777)
 			}
 			if comEnbld {
-				cmd = exec.Command("/bin/sh", "-c", "export PANAME="+a.ex[0]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
+				cmd = exec.Command("/bin/sh", "-c", "export APPNAME="+a.name+";export FILENAME="+a.ex[0]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
 			} else {
 				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.ex[0]+"\"")
 			}
@@ -86,7 +90,7 @@ func (a *app) launch() {
 			var cmd *exec.Cmd
 			if len(a.lin) == 0 {
 				if comEnbld {
-					cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", "export APPNAME="+a.name+";export FILENAME="+a.ex[0]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
 				} else {
 					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[0]+"\"")
 				}
@@ -103,7 +107,7 @@ func (a *app) launch() {
 					os.Mkdir(a.dir+"/"+a.ex[ind]+".config", 0777)
 				}
 				if comEnbld {
-					cmd = exec.Command("/bin/sh", "-c", "export PANAME="+a.ex[ind]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", "export APPNAME="+a.name+";export FILENAME="+a.ex[ind]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
 				} else {
 					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
 				}
@@ -126,7 +130,7 @@ func (a *app) launch() {
 					os.Mkdir(a.dir+"/"+a.ex[ind]+".config", 0777)
 				}
 				if comEnbld {
-					cmd = exec.Command("/bin/sh", "-c", "export PANAME="+a.ex[ind]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
+					cmd = exec.Command("/bin/sh", "-c", "export APPNAME="+a.name+";export FILENAME="+a.ex[ind]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
 				} else {
 					cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.lin[ind]+"\"")
 				}
@@ -143,7 +147,7 @@ func (a *app) launchSub(sub int) {
 		var cmd *exec.Cmd
 		if !contains(a.lin, a.ex[sub]) {
 			if comEnbld {
-				cmd = exec.Command("/bin/sh", "-c", ". PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; wine \""+a.ex[sub]+"\"")
+				cmd = exec.Command("/bin/sh", "-c", "export APPNAME="+a.name+";export FILENAME="+a.ex[0]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; wine \""+a.ex[sub]+"\"")
 			} else {
 				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; wine \""+a.ex[sub]+"\"")
 			}
@@ -153,7 +157,7 @@ func (a *app) launchSub(sub int) {
 				os.Mkdir(a.dir+"/"+a.ex[sub]+".config", 0777)
 			}
 			if comEnbld {
-				cmd = exec.Command("/bin/sh", "-c", "export PANAME="+a.ex[sub]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
+				cmd = exec.Command("/bin/sh", "-c", "export APPNAME="+a.name+";export FILENAME="+a.ex[sub]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
 			} else {
 				cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
 			}
@@ -168,7 +172,7 @@ func (a *app) launchSub(sub int) {
 			os.Mkdir(a.dir+"/"+a.ex[sub]+".config", 0777)
 		}
 		if comEnbld {
-			cmd = exec.Command("/bin/sh", "-c", "export PANAME="+a.ex[sub]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
+			cmd = exec.Command("/bin/sh", "-c", "export APPNAME="+a.name+";export FILENAME="+a.ex[sub]+";. PortableApps/LinuxPACom/common.sh || exit 1;cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
 		} else {
 			cmd = exec.Command("/bin/sh", "-c", "cd \""+a.dir+"\"; \"./"+a.ex[sub]+"\"")
 		}
@@ -203,11 +207,15 @@ func (a *app) edit(parent *gtk.Window, reload func()) {
 	imgBut.SetImage(img)
 	imgBut.SetSizeRequest(100, 100)
 	imgBut.Connect("clicked", func() {
-		fil, _ := gtk.FileChooserDialogNewWith2Buttons("Select Icon", win, gtk.FILE_CHOOSER_ACTION_OPEN, "Cancel", gtk.RESPONSE_CANCEL, "Open", gtk.RESPONSE_ACCEPT)
+		fil, _ := gtk.FileChooserDialogNewWith1Button("Select Icon", win, gtk.FILE_CHOOSER_ACTION_OPEN, "Open", gtk.RESPONSE_ACCEPT)
 		filter, _ := gtk.FileFilterNew()
 		filter.AddPixbufFormats()
 		filter.SetName("Supported Pictures")
 		fil.AddFilter(filter)
+		but, _ := fil.AddButton("Cancel", gtk.RESPONSE_CANCEL)
+		but.Connect("clicked", func() {
+			fil.Close()
+		})
 		resp := fil.Run()
 		if resp == int(gtk.RESPONSE_ACCEPT) {
 			filename := fil.GetFilename()

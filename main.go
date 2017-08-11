@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	version = "2.1.2.0"
-	defIni  = ""
+	version = "2.1.2.1"
 )
 
 var (

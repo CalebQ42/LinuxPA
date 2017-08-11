@@ -39,7 +39,6 @@ func downloadApp(parent *gtk.Window, ap appimg) {
 				return nil
 			},
 		}
-		fmt.Println(urlBase + ap.full)
 		resp, err := check.Get(urlBase + ap.full)
 		if err != nil {
 			fmt.Println(err)
@@ -54,7 +53,7 @@ func downloadApp(parent *gtk.Window, ap appimg) {
 			foldName = "PortableApps/" + name
 		} else {
 			os.Mkdir("PortableApps/"+name+"Portable", 0777)
-			foldName = "PortableApps/" + name
+			foldName = "PortableApps/" + name + "Portable"
 		}
 		os.Remove(foldName + "/" + ap.full)
 		fil, err := os.Create(foldName + "/" + ap.full)
