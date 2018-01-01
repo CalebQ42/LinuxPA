@@ -30,7 +30,6 @@ Photos are found [Here](https://goo.gl/photos/VtBUL6DyZTMidj5n6). The screenshot
 
 # TODO (Might be in order)
 1. MAKE IT BETTER  
-1. Ask if you want to update / manual update check  
-1. Show change log on update  
+1. Manual update check   
 1. Better appimage support in general   
 1. Check if all apps are closed when it closes and ask if you want to force stop the apps  
