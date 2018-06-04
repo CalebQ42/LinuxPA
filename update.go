@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	versionURL   = "https://www.dropbox.com/s/a0xizzo0a4vsfqt/Version?dl=1"
-	downloadURL  = "https://github.com/CalebQ42/LinuxPA/releases/download/vXXX/LinuxPA"
-	changelogURL = "https://www.dropbox.com/s/nmbk318er5kej5h/Changelog?dl=1"
+	versionURL       = "https://www.dropbox.com/s/a0xizzo0a4vsfqt/Version?dl=1"
+	downloadURL      = "https://github.com/CalebQ42/LinuxPA/releases/download/vXXX/LinuxPA"
+	changelogURL     = "https://www.dropbox.com/s/nmbk318er5kej5h/Changelog?dl=1"
+	changelogBetaURL = "https://www.dropbox.com/s/m8mo2o3nsvfqbfx/ChangelogBeta?dl=1"
 )
 
 //Thanks to https://www.socketloop.com/tutorials/golang-download-file-example
@@ -47,14 +48,17 @@ func versionDL() (bool, error) {
 	return true, nil
 }
 
-func getVersionFileInfo() string {
+func getVersionFileInfo() (stable string, beta string) {
 	fil, err := os.Open("PortableApps/LinuxPACom/Version")
 	if err != nil {
-		return "Error!"
+		return "Error!", ""
 	}
 	rdr := bufio.NewReader(fil)
 	out, _, _ := rdr.ReadLine()
-	return string(out)
+	stable = string(out)
+	out, _, _ = rdr.ReadLine()
+	beta = string(out)
+	return
 }
 
 func changelogDL() (bool, error) {
@@ -69,7 +73,12 @@ func changelogDL() (bool, error) {
 			return nil
 		},
 	}
-	response, err := check.Get(changelogURL)
+	var response *http.Response
+	if betaUpdate {
+		response, err = check.Get(changelogBetaURL)
+	} else {
+		response, err = check.Get(changelogURL)
+	}
 	if err != nil {
 		return false, err
 	}
@@ -89,7 +98,11 @@ func getChangelog() string {
 	return string(out)
 }
 
-func checkForUpdate(new string) (bool, error) {
+func checkForUpdate(stable, beta string) (bool, error) {
+	new := stable
+	if betaUpdate {
+		new = beta
+	}
 	curSlice := strings.Split(version, ".")
 	newSlice := strings.Split(new, ".")
 	curNums := make([]int, 4)
@@ -148,9 +161,9 @@ func downloadUpdate(newVersion string) (bool, error) {
 func update(win *gtk.Window, forced bool) {
 	stat, err := versionDL()
 	if stat {
-		res := getVersionFileInfo()
-		if res != "Error!" {
-			stat, err = checkForUpdate(res)
+		stable, beta := getVersionFileInfo()
+		if stable != "Error!" {
+			stat, err = checkForUpdate(stable, beta)
 			if stat || forced {
 				stat, err = changelogDL()
 				if stat {
@@ -222,11 +235,15 @@ func actuallyUpdate(win *gtk.Window, forced bool) {
 		defer updateWin.Close()
 		stat, err := versionDL()
 		if stat {
-			res := getVersionFileInfo()
-			if res != "Error!" {
-				stat, err = checkForUpdate(res)
+			stable, beta := getVersionFileInfo()
+			if stable != "Error!" {
+				stat, err = checkForUpdate(stable, beta)
 				if stat || forced {
-					downloadUpdate(res)
+					if betaUpdate {
+						downloadUpdate(beta)
+					} else {
+						downloadUpdate(stable)
+					}
 					win.Close()
 					cmd := exec.Command("./LinuxPA")
 					cmd.Stdin = os.Stdin

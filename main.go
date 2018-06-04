@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	version = "2.1.2.1"
+	version = "2.1.4.0"
 )
 
 var (
@@ -22,6 +22,7 @@ var (
 	comEnbld      bool
 	wineAvail     bool
 	portableHide  bool
+	betaUpdate    bool
 	versionNewest = true
 	paDirs        = true
 )
@@ -79,6 +80,10 @@ func savePrefs() {
 	if err != nil {
 		return
 	}
+	err = enc.Encode(betaUpdate)
+	if err != nil {
+		return
+	}
 }
 
 func loadPrefs() {
@@ -100,6 +105,10 @@ func loadPrefs() {
 		return
 	}
 	err = dec.Decode(&paDirs)
+	if err != nil {
+		return
+	}
+	err = dec.Decode(&betaUpdate)
 	if err != nil {
 		return
 	}

@@ -31,5 +31,9 @@ Photos are found [Here](https://goo.gl/photos/VtBUL6DyZTMidj5n6). The screenshot
 # TODO (Might be in order)
 1. MAKE IT BETTER  
 1. Manual update check   
-1. Better appimage support in general   
+1. Better AppImage integrations (Specifically updating, getting information from the appimage, and better appimage downloading)
+1. Automagic appimage updating (It will of course ask you beforehand)
+1. Get information (such as name and icon) directly from an appimage
+1. Better appimage downloading (probably based around [AppImageHub](https://appimage.github.io/apps/))
+1. Sandboxing support  
 1. Check if all apps are closed when it closes and ask if you want to force stop the apps  
