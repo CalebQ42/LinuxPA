@@ -20,6 +20,7 @@ type app struct {
 	icon   *gdk.Pixbuf
 	dir    string
 	ini    *os.File
+	wine   bool
 }
 
 func (a *app) getTreeIter(store *gtk.TreeStore) *gtk.TreeIter {
@@ -242,7 +243,11 @@ func (a *app) edit(parent *gtk.Window, reload func()) {
 	nameTxt.SetHExpand(true)
 	nameTxt.SetVExpand(false)
 	nameTxt.SetBorderWindowSize(gtk.TEXT_WINDOW_BOTTOM, 5)
-	txtBuf.SetText(tmp.name)
+	nameShow := tmp.name
+	if tmp.wine {
+		nameShow = strings.TrimSuffix(nameShow, " (Wine)")
+	}
+	txtBuf.SetText(nameShow)
 	vScrollName, _ := gtk.AdjustmentNew(0, 0, 0, 0, 0, 0)
 	hScrollName, _ := gtk.AdjustmentNew(0, 0, 0, 0, 0, 0)
 	nameScr, _ := gtk.ScrolledWindowNew(hScrollName, vScrollName)

@@ -20,6 +20,7 @@ func settingsUI(parent *gtk.Window, onExit func()) {
 	win.SetDefaultSize(600, 300)
 	win.SetPosition(gtk.WIN_POS_CENTER_ON_PARENT)
 	win.Connect("destroy", func() {
+		savePrefs()
 		parent.SetSensitive(true)
 		onExit()
 	})

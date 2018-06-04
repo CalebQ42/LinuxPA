@@ -114,6 +114,7 @@ func processApp(fold string) (out app) {
 	}
 	if len(out.lin) == 0 {
 		out.name += " (Wine)"
+		out.wine = true
 	}
 	return
 }
