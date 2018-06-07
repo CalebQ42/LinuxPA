@@ -2,15 +2,16 @@ package main
 
 import (
 	"encoding/gob"
-	"flag"
 	"fmt"
 	"os"
+
+	"github.com/CalebQ42/LinuxPA/appimg"
 
 	"github.com/gotk3/gotk3/gtk"
 )
 
 const (
-	version = "2.1.4.0"
+	version = "2.1.4.1"
 )
 
 var (
@@ -28,12 +29,18 @@ var (
 )
 
 func main() {
-	forced := flag.Bool("force-update", false, "Force the update dialog to be shown")
-	flag.Parse()
-	os.MkdirAll("PortableApps/LinuxPACom", 0777)
-	master = make(map[string][]app)
-	linmaster = make(map[string][]app)
-	uiStart(*forced)
+	_, err := appimg.GetDesktopFile("gimp.AppImage")
+	if err == nil {
+		os.Rename("/tmp/my.desktop", "PortableApps/stuff.desktop")
+	} else {
+		println("error:", err)
+	}
+	// forced := flag.Bool("force-update", false, "Force the update dialog to be shown")
+	// flag.Parse()
+	// os.MkdirAll("PortableApps/LinuxPACom", 0777)
+	// master = make(map[string][]app)
+	// linmaster = make(map[string][]app)
+	// uiStart(*forced)
 }
 
 func uiStart(forced bool) {

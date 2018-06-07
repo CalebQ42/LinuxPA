@@ -5,74 +5,75 @@ package appimg
 /*
 #cgo CFLAGS: -I/usr/lib
 #cgo LDFLAGS: -L/usr/lib/libappimage.so -lappimage
-#cgo pkg-config: glib-2.0
 
 #include <appimage/appimage.h>
 #include <stdlib.h>
-#include <glib.h>
-#include <strings.h>
 
-bool extract_desktop(char* appimageLoc,char* extractLoc){
-  char** files = appimage_list_files(appimageLoc);
-  g_autofree gchar *desktop_file = NULL;
-  gchar *extracted_desktop_file = extractLoc;
-  int i = 0;
-  for (; files[i] != NULL ; i++) {
-      // g_debug("AppImage file: %s", files[i]);
-      if (g_str_has_suffix (files[i],".desktop")) {
-          desktop_file = files[i];
-          g_debug("AppImage desktop file: %s", desktop_file);
-          break;
-      }
-  }
-  if(desktop_file == NULL) {
-      g_debug("AppImage desktop file not found");
-      appimage_string_list_free(files);
-      return FALSE;
-  }
-  appimage_extract_file_following_symlinks(appimageLoc, desktop_file,extracted_desktop_file);
-  appimage_string_list_free(files);
-	return TRUE;
-}
-
-bool extract_file(char* appimageLoc,char* filename,char* extractLoc){
-  char** files = appimage_list_files(appimageLoc);
-  g_autofree gchar *found_file = NULL;
-  gchar *extracted_file = extractLoc;
-  int i = 0;
-  for (; files[i] != NULL ; i++) {
-      g_debug("AppImage file: %s", files[i]);
-      if (strcmp(files[i],filename)==0) {
-          found_file = files[i];
-          g_debug("FileFound: %s", found_file);
-      }
-  }
-  if(found_file == NULL) {
-      g_debug("filenotfound");
-      appimage_string_list_free(files);
-      return FALSE;
-  }
-  appimage_extract_file_following_symlinks(appimageLoc, found_file,extracted_file);
-  appimage_string_list_free(files);
-	return TRUE;
+int char_length(char** in){
+	int i = 0;
+	for (; in[i] != NULL ; i++);
+	return i;
 }
 */
 import "C"
 import (
 	"errors"
 	"os"
+	"strings"
 	"unsafe"
 )
 
-func GetDesktopFile(loc string) (*os.File, error) {
-	os.Remove("/tmp/my.desktop")
-	var locTmp *C.char = C.CString(loc)
-	defer C.free(unsafe.Pointer(locTmp))
-	var extractLoc *C.char = C.CString("/tmp/my.desktop")
-	defer C.free(unsafe.Pointer(extractLoc))
-	var out C.bool = C.extract_desktop(locTmp, extractLoc)
-	if out == false {
-		return nil, errors.New("Desktop File Not Found!")
+var (
+	//ErrNotAppImage return if the given location does not point to an AppImage
+	ErrNotAppImage = errors.New("file is not an appimage")
+)
+
+//Thanks to https://stackoverflow.com/questions/36188649/cgo-char-to-slice-string for char** to string slice code :)
+
+//GetDesktopFile tries to find the desktop file inside the appimage at appimageLoc and extract it to extractLoc.
+//extractLoc is deleted first to provent conflicts.
+func GetDesktopFile(appimageLoc string, extractLoc string) (*os.File, error) {
+	if !strings.HasSuffix(appimageLoc, ".AppImage") {
+		return nil, ErrNotAppImage
 	}
-	return os.Open("/tmp/my.desktop")
+	err := os.Remove(extractLoc)
+	if err != os.ErrNotExist {
+		return nil, err
+	}
+	cextractLoc := C.CString(extractLoc)
+	defer C.free(unsafe.Pointer(cextractLoc))
+	cloc := C.CString(appimageLoc)
+	defer C.free(unsafe.Pointer(cloc))
+	cfiles := C.appimage_list_files(cloc)
+	defer C.appimage_string_list_free(cfiles)
+	cfilesLength := C.char_length(cfiles)
+	tmpslice := (*[1 << 30]*C.char)(unsafe.Pointer(cfiles))[:cfilesLength:cfilesLength]
+	for _, v := range tmpslice {
+		tmp := C.GoString(v)
+		if strings.HasSuffix(tmp, ".desktop") {
+			C.appimage_extract_file_following_symlinks(cloc, v, cextractLoc)
+			break
+		}
+	}
+	return os.Open(extractLoc)
+}
+
+//ExtractFile tries to extract the file at fileLoc to extractLoc from the appimage at appimageLoc.
+//extractLoc is deleted first to provent conflicts.
+func ExtractFile(appimageLoc string, fileLoc string, extractLoc string) (*os.File, error) {
+	if !strings.HasSuffix(appimageLoc, ".AppImage") {
+		return nil, ErrNotAppImage
+	}
+	err := os.Remove(extractLoc)
+	if err != os.ErrNotExist {
+		return nil, err
+	}
+	cextractLoc := C.CString(extractLoc)
+	defer C.free(unsafe.Pointer(cextractLoc))
+	cloc := C.CString(appimageLoc)
+	defer C.free(unsafe.Pointer(cloc))
+	cfileLoc := C.CString(fileLoc)
+	defer C.free(unsafe.Pointer(cfileLoc))
+	C.appimage_extract_file_following_symlinks(cloc, cfileLoc, cextractLoc)
+	return os.Open(extractLoc)
 }
