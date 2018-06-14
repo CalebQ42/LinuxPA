@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	_ "image/png"
 	"os"
 	"os/exec"
@@ -9,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/CalebQ42/GoAppImage"
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 )
@@ -64,28 +66,12 @@ func setup() {
 			}
 		}
 	}
+	populated = true
 }
 
 func processApp(fold string) (out app) {
 	wd, _ := os.Getwd()
 	out.dir = wd + "/" + fold
-	out.ini = findInfo(fold)
-	if out.ini != nil {
-		out.name = getName(out.ini)
-		out.ini = findInfo(fold)
-		out.cat = getCat(out.ini)
-		out.ini = findInfo(fold)
-	}
-	if out.name == "" {
-		out.name = strings.TrimPrefix(fold, "PortableApps/")
-	}
-	if out.cat == "" {
-		out.cat = "Other"
-	}
-	if portableHide {
-		out.name = strings.TrimSuffix(out.name, "Portable")
-	}
-	out.icon = getIcon(fold)
 	folder, _ := os.Open(fold)
 	fis, _ := folder.Readdirnames(-1)
 	for _, v := range fis {
@@ -115,6 +101,36 @@ func processApp(fold string) (out app) {
 	if len(out.lin) == 0 {
 		out.name += " (Wine)"
 		out.wine = true
+	}
+	out.icon = getIcon(fold)
+	if len(out.appimg) > 0 {
+		os.Mkdir(out.dir+"/.appimageconfig", 0777)
+		fil, err := os.Open(out.dir + "/.appimageconfig/info.json")
+		if err == os.ErrNotExist {
+			fil, _ = os.Create(out.dir + "/.appimageconfig/info.json")
+			ai := goappimage.NewAppImage(out.dir + "/" + out.appimg[0])
+			ai.ExtractDesktop(out.dir + "/.appimageconfig/the.desktop")
+			//extract desktop and parse info then send to json
+			//also md5 so when updating happens it can update the desktop file
+			ai.Free()
+		} else {
+			//decode json, check if desktop needs to be updated
+		}
+		//Parse extracted desktop file
+	}
+	out.ini = findInfo(fold)
+	if out.ini != nil {
+		out.name = getName(out.ini)
+		out.cat = getCat(out.ini)
+	}
+	if out.name == "" {
+		out.name = strings.TrimPrefix(fold, "PortableApps/")
+	}
+	if out.cat == "" {
+		out.cat = "Other"
+	}
+	if portableHide {
+		out.name = strings.TrimSuffix(out.name, "Portable")
 	}
 	return
 }

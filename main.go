@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/gob"
 	"flag"
 	"fmt"
 	"os"
@@ -14,17 +13,12 @@ const (
 )
 
 var (
-	master        map[string][]app
-	linmaster     map[string][]app
-	cats          []string
-	lin           []string
-	wine          bool
-	comEnbld      bool
-	wineAvail     bool
-	portableHide  bool
-	betaUpdate    bool
-	versionNewest = true
-	paDirs        = true
+	master    map[string][]app
+	linmaster map[string][]app
+	cats      []string
+	lin       []string
+	comEnbld  bool
+	populated bool
 )
 
 func main() {
@@ -55,63 +49,6 @@ func uiStart(forced bool) {
 	win.Show()
 	update(win, forced)
 	gtk.Main()
-}
-
-func savePrefs() {
-	os.Remove("PortableApps/LinuxPACom/Prefs.gob")
-	fil, err := os.Create("PortableApps/LinuxPACom/Prefs.gob")
-	if err != nil {
-		return
-	}
-	enc := gob.NewEncoder(fil)
-	err = enc.Encode(wine)
-	if err != nil {
-		return
-	}
-	err = enc.Encode(portableHide)
-	if err != nil {
-		return
-	}
-	err = enc.Encode(versionNewest)
-	if err != nil {
-		return
-	}
-	err = enc.Encode(paDirs)
-	if err != nil {
-		return
-	}
-	err = enc.Encode(betaUpdate)
-	if err != nil {
-		return
-	}
-}
-
-func loadPrefs() {
-	fil, err := os.Open("PortableApps/LinuxPACom/Prefs.gob")
-	if err != nil {
-		return
-	}
-	dec := gob.NewDecoder(fil)
-	err = dec.Decode(&wine)
-	if err != nil {
-		return
-	}
-	err = dec.Decode(&portableHide)
-	if err != nil {
-		return
-	}
-	err = dec.Decode(&versionNewest)
-	if err != nil {
-		return
-	}
-	err = dec.Decode(&paDirs)
-	if err != nil {
-		return
-	}
-	err = dec.Decode(&betaUpdate)
-	if err != nil {
-		return
-	}
 }
 
 func contains(arr []string, str string) bool {
