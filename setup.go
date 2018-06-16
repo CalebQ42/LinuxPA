@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	_ "image/png"
 	"os"
 	"os/exec"
@@ -103,25 +102,62 @@ func processApp(fold string) (out app) {
 		out.wine = true
 	}
 	out.icon = getIcon(fold)
-	if len(out.appimg) > 0 {
-		os.Mkdir(out.dir+"/.appimageconfig", 0777)
-		fil, err := os.Open(out.dir + "/.appimageconfig/info.json")
-		if err == os.ErrNotExist {
-			fil, _ = os.Create(out.dir + "/.appimageconfig/info.json")
-			ai := goappimage.NewAppImage(out.dir + "/" + out.appimg[0])
-			ai.ExtractDesktop(out.dir + "/.appimageconfig/the.desktop")
-			//extract desktop and parse info then send to json
-			//also md5 so when updating happens it can update the desktop file
-			ai.Free()
-		} else {
-			//decode json, check if desktop needs to be updated
-		}
-		//Parse extracted desktop file
-	}
 	out.ini = findInfo(fold)
 	if out.ini != nil {
 		out.name = getName(out.ini)
 		out.cat = getCat(out.ini)
+	}
+	if len(out.appimg) > 0 && out.name == "" && out.cat == "" && out.icon == nil {
+		os.Mkdir(out.dir+"/.appimageconfig", 0777)
+		ai := goappimage.NewAppImage(out.dir + "/" + out.appimg[0])
+		fil, err := os.Open(out.dir + "/.appimageconfig/the.md5")
+		if os.IsNotExist(err) {
+			ai.Initialize()
+			ai.ExtractDesktop(out.dir + "/.appimageconfig/the.desktop")
+			desk, _ := os.Open(out.dir + "/.appimageconfig/the.desktop")
+			name, cat, icon := extractDesktopInfo(desk)
+			if out.name == "" {
+				out.name = name
+			}
+			if out.cat == "" {
+				out.cat = cat
+			}
+			if out.icon == nil {
+				it, _ := gtk.IconThemeGetDefault()
+				out.icon, err = it.LoadIcon(icon, 64, gtk.ICON_LOOKUP_GENERIC_FALLBACK)
+			}
+			fil, _ = os.Create(out.dir + "/.appimageconfig/the.md5")
+			wrtr := bufio.NewWriter(fil)
+			wrtr.WriteString(ai.Md5())
+			wrtr.Flush()
+		} else {
+			md := ai.Md5()
+			rdr := bufio.NewReader(fil)
+			filMd, _, _ := rdr.ReadLine()
+			oldMd := string(filMd)
+			if oldMd != md {
+				ai.Initialize()
+				ai.ExtractDesktop(out.dir + "/.appimageconfig/the.desktop")
+				os.Remove(out.dir + "/.appimageconfig/the.md5")
+				fil, _ = os.Create(out.dir + "/.appimageconfig/the.md5")
+				wrtr := bufio.NewWriter(fil)
+				wrtr.WriteString(ai.Md5())
+				wrtr.Flush()
+			}
+		}
+		ai.Free()
+		desk, _ := os.Open(out.dir + "/.appimageconfig/the.desktop")
+		name, cat, icon := extractDesktopInfo(desk)
+		if out.name == "" {
+			out.name = name
+		}
+		if out.cat == "" {
+			out.cat = cat
+		}
+		if out.icon == nil {
+			it, _ := gtk.IconThemeGetDefault()
+			out.icon, err = it.LoadIcon(icon, 32, gtk.ICON_LOOKUP_GENERIC_FALLBACK)
+		}
 	}
 	if out.name == "" {
 		out.name = strings.TrimPrefix(fold, "PortableApps/")
@@ -148,6 +184,31 @@ func getCat(ini *os.File) string {
 	}
 	rdr.Reset(ini)
 	return ret
+}
+
+func extractDesktopInfo(desk *os.File) (name, category, iconName string) {
+	rdr := bufio.NewReader(desk)
+	var nameGot, catGot, iconGot bool
+	for line, _, err := rdr.ReadLine(); err == nil; line, _, err = rdr.ReadLine() {
+		ln := string(line)
+		if !nameGot && strings.HasPrefix(ln, "Name=") {
+			name = strings.TrimPrefix(ln, "Name=")
+			nameGot = true
+		} else if !catGot && strings.HasPrefix(ln, "Categories=") {
+			cats := strings.Split(strings.TrimPrefix(ln, "Categories="), ";")
+			if len(cats) > 0 {
+				category = cats[0]
+			}
+			catGot = true
+		} else if !iconGot && strings.HasPrefix(ln, "Icon=") {
+			iconName = strings.TrimPrefix(ln, "Icon=")
+			iconGot = true
+		}
+		if nameGot && catGot && iconGot {
+			break
+		}
+	}
+	return
 }
 
 func getName(ini *os.File) string {

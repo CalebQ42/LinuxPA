@@ -25,7 +25,8 @@ type app struct {
 
 func (a *app) getTreeIter(store *gtk.TreeStore) *gtk.TreeIter {
 	it := store.Append(nil)
-	store.SetValue(it, 0, a.icon)
+	scaled,_ := a.icon.ScaleSimple(32,32,gdk.INTERP_HYPER)
+	store.SetValue(it, 0, scaled)
 	if portableHide {
 		store.SetValue(it, 1, strings.TrimSuffix(a.name, "Portable"))
 	} else {
