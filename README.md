@@ -6,7 +6,7 @@ Just double click on an app to launch it! If there are multiple executables, you
 
 # Apps:
 The below place provides linux executables that don't need libs installed on the host system:  
-[AppImage](https://bintray.com/probono/AppImages)  
+[https://appimage.github.io/](https://appimage.github.io/)  
 
 # PortableApps.com Compatibility
 LinuxPA works will with the PortableApps.com launcher, as it looks for apps in the PortableApps folder and grabs the app's name and icon from where it should be in the PortableApps.com format.  
