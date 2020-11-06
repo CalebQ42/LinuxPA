@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/CalebQ42/GoAppImage"
+	goappimage "github.com/CalebQ42/GoAppImage"
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 )
@@ -112,8 +112,7 @@ func processApp(fold string) (out app) {
 		ai := goappimage.NewAppImage(out.dir + "/" + out.appimg[0])
 		fil, err := os.Open(out.dir + "/.appimageconfig/the.md5")
 		if os.IsNotExist(err) {
-			ai.Initialize()
-			ai.ExtractDesktop(out.dir + "/.appimageconfig/the.desktop")
+			ai.ExtractFile(ai.DesktopFilepath, out.dir+"/.appimageconfig/the.desktop", false)
 			desk, _ := os.Open(out.dir + "/.appimageconfig/the.desktop")
 			name, cat, icon := extractDesktopInfo(desk)
 			if out.name == "" {
@@ -128,24 +127,21 @@ func processApp(fold string) (out app) {
 			}
 			fil, _ = os.Create(out.dir + "/.appimageconfig/the.md5")
 			wrtr := bufio.NewWriter(fil)
-			wrtr.WriteString(ai.Md5())
+			wrtr.WriteString(ai.Md5)
 			wrtr.Flush()
 		} else {
-			md := ai.Md5()
 			rdr := bufio.NewReader(fil)
 			filMd, _, _ := rdr.ReadLine()
 			oldMd := string(filMd)
-			if oldMd != md {
-				ai.Initialize()
-				ai.ExtractDesktop(out.dir + "/.appimageconfig/the.desktop")
+			if oldMd != ai.Md5 {
+				ai.ExtractFile(ai.DesktopFilepath, out.dir+"/.appimageconfig/the.desktop", false)
 				os.Remove(out.dir + "/.appimageconfig/the.md5")
 				fil, _ = os.Create(out.dir + "/.appimageconfig/the.md5")
 				wrtr := bufio.NewWriter(fil)
-				wrtr.WriteString(ai.Md5())
+				wrtr.WriteString(ai.Md5)
 				wrtr.Flush()
 			}
 		}
-		ai.Free()
 		desk, _ := os.Open(out.dir + "/.appimageconfig/the.desktop")
 		name, cat, icon := extractDesktopInfo(desk)
 		if out.name == "" {

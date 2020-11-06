@@ -9,11 +9,11 @@ import (
 	"strings"
 
 	"github.com/gotk3/gotk3/gtk"
-	"github.com/mholt/archiver"
+	"github.com/mholt/archiver/v3"
 )
 
 const (
-	wineURL = "https://www.playonlinux.com/wine/binaries/linux-amd64/PlayOnLinux-wine-2.5-linux-amd64.pol"
+	wineURL = "https://www.playonlinux.com/wine/binaries/phoenicis/staging-linux-amd64/PlayOnLinux-wine-5.20-staging-linux-amd64.tar.gz"
 )
 
 func downloadWine(parent *gtk.Window, cb chan bool) {
@@ -40,7 +40,7 @@ func downloadWine(parent *gtk.Window, cb chan bool) {
 	win.Show()
 	go func(win *gtk.Window, txt *gtk.Label) {
 		defer win.Close()
-		wineTar, err := os.Create("PortableApps/LinuxPACom/wine2.5.tar.bz2")
+		wineTar, err := os.Create("PortableApps/LinuxPACom/wine5.20.tar.bz2")
 		if err != nil {
 			fmt.Println(err)
 			cb <- false
@@ -68,7 +68,7 @@ func downloadWine(parent *gtk.Window, cb chan bool) {
 			return
 		}
 		txt.SetText("Extracting Wine")
-		err = archiver.TarBz2.Open("PortableApps/LinuxPACom/wine2.5.tar.bz2", "PortableApps/LinuxPACom/Wine")
+		err = archiver.DefaultTarBz2.Unarchive("PortableApps/LinuxPACom/wine2.5.tar.bz2", "PortableApps/LinuxPACom/Wine")
 		if err != nil {
 			fmt.Println(err)
 			cb <- false

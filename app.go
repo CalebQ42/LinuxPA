@@ -25,7 +25,7 @@ type app struct {
 
 func (a *app) getTreeIter(store *gtk.TreeStore) *gtk.TreeIter {
 	it := store.Append(nil)
-	scaled,_ := a.icon.ScaleSimple(32,32,gdk.INTERP_HYPER)
+	scaled, _ := a.icon.ScaleSimple(32, 32, gdk.INTERP_HYPER)
 	store.SetValue(it, 0, scaled)
 	if portableHide {
 		store.SetValue(it, 1, strings.TrimSuffix(a.name, "Portable"))
@@ -219,7 +219,7 @@ func (a *app) edit(parent *gtk.Window, reload func()) {
 			fil.Close()
 		})
 		resp := fil.Run()
-		if resp == int(gtk.RESPONSE_ACCEPT) {
+		if resp == gtk.RESPONSE_ACCEPT {
 			filename := fil.GetFilename()
 			_, err := os.Open(filename)
 			if err != nil {
