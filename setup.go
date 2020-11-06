@@ -112,7 +112,16 @@ func processApp(fold string) (out app) {
 		ai := goappimage.NewAppImage(out.dir + "/" + out.appimg[0])
 		fil, err := os.Open(out.dir + "/.appimageconfig/the.md5")
 		if os.IsNotExist(err) {
-			ai.ExtractFile(ai.DesktopFilepath, out.dir+"/.appimageconfig/the.desktop", false)
+			ai.ExtractFile("*.desktop", out.dir+"/.appimageconfig/", false)
+			appimageconfig, _ := os.Open(out.dir + "/.appimageconfig")
+			appdirs, _ := appimageconfig.Readdirnames(-1)
+			for _, dirs := range appdirs {
+				desktopFil, _ := os.Open(out.dir + "/.appimageconfig/" + dirs)
+				if stat, _ := desktopFil.Stat(); strings.HasSuffix(dirs, ".desktop") && !stat.IsDir() {
+					os.Rename(out.dir+"/.appimageconfig/"+dirs, out.dir+"/.appimageconfig/the.desktop")
+					break
+				}
+			}
 			desk, _ := os.Open(out.dir + "/.appimageconfig/the.desktop")
 			name, cat, icon := extractDesktopInfo(desk)
 			if out.name == "" {
@@ -134,7 +143,16 @@ func processApp(fold string) (out app) {
 			filMd, _, _ := rdr.ReadLine()
 			oldMd := string(filMd)
 			if oldMd != ai.Md5 {
-				ai.ExtractFile(ai.DesktopFilepath, out.dir+"/.appimageconfig/the.desktop", false)
+				ai.ExtractFile("*.desktop", out.dir+"/.appimageconfig/", false)
+				appimageconfig, _ := os.Open(out.dir + "/.appimageconfig")
+				appdirs, _ := appimageconfig.Readdirnames(-1)
+				for _, dirs := range appdirs {
+					desktopFil, _ := os.Open(out.dir + "/.appimageconfig/" + dirs)
+					if stat, _ := desktopFil.Stat(); strings.HasSuffix(dirs, ".desktop") && !stat.IsDir() {
+						os.Rename(out.dir+"/.appimageconfig/"+dirs, out.dir+"/.appimageconfig/the.desktop")
+						break
+					}
+				}
 				os.Remove(out.dir + "/.appimageconfig/the.md5")
 				fil, _ = os.Create(out.dir + "/.appimageconfig/the.md5")
 				wrtr := bufio.NewWriter(fil)
