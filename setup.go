@@ -182,6 +182,7 @@ func processApp(fold string) (out app) {
 	if portableHide {
 		out.name = strings.TrimSuffix(out.name, "Portable")
 	}
+	out.name = strings.TrimSpace(out.name)
 	return
 }
 
