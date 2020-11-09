@@ -19,8 +19,8 @@ common.sh is found in the PortableApps/LinuxPACom folder and is executed before 
 Because apps aren't natively formated in the PortableApps.com format, LinuxPA will look in the root directory for a AppInfo.ini (for basic info such as category and name) and appicon.png. If they aren't found, it looks where the appicon_\*.png and AppInfo.ini is in PortableApps format. You can set what the AppInfo.ini and appicon.png are from LinuxPA.  
 
 # AppImage Support
-[AppImage Website](http://appimage.org)  
-Right now AppImages are simply supported via the native linux executable support, and you can download AppImages. (Woo)
+[AppImage Website](http://appimage.org)
+I'm looking into improving AppImage support. As of 2.1.5.0 IF `unsquashfs` is in $PATH then some advanced AppImage support is available and it will automagically get the name and possibly the icon of it. I'm looking into better support, but it might be a while.
 
 # USB mount
 Unfortunately Linux, by default, doesn't support running executables off of FAT formated flash drives, requiring you to mount your drive with special mount arguments or format in a linux friendly format (such as EXT4). I personally use the arguments `exec,noauto,nodev,nosuid,umask=0000`  
@@ -30,6 +30,7 @@ Photos are found [Here](https://goo.gl/photos/VtBUL6DyZTMidj5n6). The screenshot
 
 # TODO (Might be in order)
 1. MAKE IT BETTER  
+1. Try to `chmod +x` executables if they don't have the permission
 1. Manual update check   
 1. Better AppImage integrations (Specifically updating, getting information from the appimage, and better appimage downloading)
 1. Automagic appimage updating (It will of course ask you beforehand)

@@ -1,4 +1,5 @@
 github.com/CalebQ42/GoAppImage v0.2.0/go.mod h1:3SZVVeXeNJx1UobO0Cb4cBnx02ahyx52wBzo1VEPNOA=
+github.com/CalebQ42/GoAppImage v0.4.0/go.mod h1:qHudJKAn/dlkNWNnH4h1YKXp29EZ7Bppsn7sNP2HuvU=
 github.com/adrg/xdg v0.2.2 h1:A7ZHKRz5KGOLJX/bg7IPzStryhvCzAE1wX+KWawPiAo=
 github.com/adrg/xdg v0.2.2/go.mod h1:7I2hH/IT30IsupOpKZ5ue7/qNi3CoKzD6tL3HwpaRMQ=
 github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7/go.mod h1:6zEj6s6u/ghQa61ZWa/C2Aw3RkjiTBOix7dkqa1VLIs=
