@@ -75,9 +75,11 @@ func processApp(fold string) (out app) {
 	fis, _ := folder.Readdirnames(-1)
 	for _, v := range fis {
 		tmp, _ := os.Open(fold + "/" + v)
-		if stat, _ := tmp.Stat(); stat.IsDir() {
+		stat, _ := tmp.Stat()
+		if stat.IsDir() {
 			continue
 		}
+		//TODO: check permission to see if it has exec permission
 		if strings.HasSuffix(strings.ToLower(v), ".appimage") {
 			out.appimg = append(out.appimg, v)
 			out.ex = append(out.ex, v)
