@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/CalebQ42/LinuxPA/appimg"
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
+	"github.com/pkg/browser"
 )
 
 func ui(win *gtk.Window) {
@@ -140,22 +140,8 @@ func ui(win *gtk.Window) {
 		}
 	})
 	dnl.Connect("clicked", func() {
-		appimg.ShowUI(versionNewest, func() {
-			master = make(map[string][]app)
-			linmaster = make(map[string][]app)
-			cats = make([]string, 0)
-			lin = make([]string, 0)
-			setup()
-			store.Clear()
-			for i := range ls {
-				catList.Remove(catList.GetRowAtIndex(len(ls) - i - 1))
-			}
-			ls = getCatRows()
-			for i, v := range ls {
-				catList.Insert(v, i)
-			}
-			catList.ShowAll()
-		})
+		//TODO: detect if a webbrowser app is available and use that instead
+		browser.OpenURL("https://appimage.github.io/apps/")
 	})
 	settings.Connect("clicked", func() {
 		settingsUI(win, func() {
