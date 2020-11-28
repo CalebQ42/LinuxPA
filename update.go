@@ -17,8 +17,8 @@ import (
 const (
 	versionURL       = "https://www.dropbox.com/s/a0xizzo0a4vsfqt/Version?dl=1"
 	downloadURL      = "https://github.com/CalebQ42/LinuxPA/releases/download/vXXX/LinuxPA"
-	changelogURL     = "https://www.dropbox.com/s/nmbk318er5kej5h/Changelog?dl=1"
-	changelogBetaURL = "https://www.dropbox.com/s/m8mo2o3nsvfqbfx/ChangelogBeta?dl=1"
+	changelogURL     = "https://www.dropbox.com/s/rk8ec9p14imkh03/Changelog?dl=1"
+	changelogBetaURL = "https://www.dropbox.com/s/h2u34g5s8qr8sef/ChangelogBeta?dl=1"
 )
 
 //Thanks to https://www.socketloop.com/tutorials/golang-download-file-example
@@ -170,11 +170,13 @@ func update(win *gtk.Window, forced bool) {
 					updateWin, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
 					updateWin.SetTransientFor(win)
 					updateWin.SetPosition(gtk.WIN_POS_CENTER)
+					updateWin.SetDefaultSize(600, 300)
 					topLvl, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 5)
 					lbl, _ := gtk.LabelNew("There's a new update! Here's the changelog:")
 					tagTbl, _ := gtk.TextTagTableNew()
 					buf, _ := gtk.TextBufferNew(tagTbl)
 					tv, _ := gtk.TextViewNewWithBuffer(buf)
+					tv.SetWrapMode(gtk.WRAP_WORD)
 					tv.SetEditable(false)
 					buf.SetText(getChangelog())
 					butBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 5)
