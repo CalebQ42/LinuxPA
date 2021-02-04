@@ -12,14 +12,14 @@ import (
 )
 
 type app struct {
+	ini    *os.File
+	icon   *gdk.Pixbuf
 	name   string
+	dir    string
 	cat    string
 	appimg []string
 	lin    []string
 	ex     []string
-	icon   *gdk.Pixbuf
-	dir    string
-	ini    *os.File
 	wine   bool
 }
 

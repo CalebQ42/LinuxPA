@@ -158,13 +158,13 @@ func downloadUpdate(newVersion string) (bool, error) {
 	return true, nil
 }
 
-func update(win *gtk.Window, forced bool) {
+func update(win *gtk.Window) {
 	stat, err := versionDL()
 	if stat {
 		stable, beta := getVersionFileInfo()
 		if stable != "Error!" {
 			stat, err = checkForUpdate(stable, beta)
-			if stat || forced {
+			if stat || *forced {
 				stat, err = changelogDL()
 				if stat {
 					updateWin, _ := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
@@ -183,7 +183,7 @@ func update(win *gtk.Window, forced bool) {
 					upBut, _ := gtk.ButtonNewWithLabel("Update")
 					upBut.Connect("clicked", func() {
 						updateWin.Close()
-						actuallyUpdate(win, forced)
+						actuallyUpdate(win)
 					})
 					cnlBut, _ := gtk.ButtonNewWithLabel("Cancel")
 					cnlBut.Connect("clicked", func() {
@@ -215,7 +215,7 @@ func update(win *gtk.Window, forced bool) {
 	}
 }
 
-func actuallyUpdate(win *gtk.Window, forced bool) {
+func actuallyUpdate(win *gtk.Window) {
 	updateWin, _ := gtk.WindowNew(gtk.WINDOW_POPUP)
 	updateWin.SetTransientFor(win)
 	updateWin.SetSizeRequest(150, 50)
@@ -240,7 +240,7 @@ func actuallyUpdate(win *gtk.Window, forced bool) {
 			stable, beta := getVersionFileInfo()
 			if stable != "Error!" {
 				stat, err = checkForUpdate(stable, beta)
-				if stat || forced {
+				if stat || *forced {
 					if betaUpdate {
 						downloadUpdate(beta)
 					} else {

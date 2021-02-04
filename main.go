@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 
 	"github.com/gotk3/gotk3/gtk"
 )
@@ -13,24 +12,22 @@ const (
 )
 
 var (
-	master    map[string][]app
-	linmaster map[string][]app
+	master    map[string][]app = make(map[string][]app)
+	linmaster map[string][]app = make(map[string][]app)
 	cats      []string
 	lin       []string
 	comEnbld  bool
 	populated bool
+	forced    *bool
 )
 
 func main() {
-	forced := flag.Bool("force-update", false, "Force the update dialog to be shown")
+	forced = flag.Bool("force-update", false, "Force the update dialog to be shown")
 	flag.Parse()
-	os.MkdirAll("PortableApps/LinuxPACom", 0777)
-	master = make(map[string][]app)
-	linmaster = make(map[string][]app)
-	uiStart(*forced)
+	uiStart()
 }
 
-func uiStart(forced bool) {
+func uiStart() {
 	gtk.Init(nil)
 	setup()
 	win, err := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
@@ -47,7 +44,7 @@ func uiStart(forced bool) {
 	ui(win)
 	win.ShowAll()
 	win.Show()
-	update(win, forced)
+	update(win)
 	gtk.Main()
 }
 

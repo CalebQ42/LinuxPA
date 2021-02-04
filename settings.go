@@ -84,22 +84,19 @@ func settingsUI(parent *gtk.Window, onExit func()) {
 	wineCheck.Connect("toggled", func() {
 		wine = wineCheck.GetActive()
 	})
-	versCheck, _ := gtk.CheckButtonNewWithLabel("Only show newest app version in downloads (A bit iffy ATM)")
-	versCheck.SetActive(versionNewest)
-	versCheck.Connect("toggled", func() {
-		versionNewest = versCheck.GetActive()
-	})
 	paDirsCheck, _ := gtk.CheckButtonNewWithLabel("Create .home and .config directories for AppImages")
 	paDirsCheck.SetActive(paDirs)
 	paDirsCheck.Connect("toggled", func() {
 		paDirs = paDirsCheck.GetActive()
 	})
 	betaCheck, _ := gtk.CheckButtonNewWithLabel("Update to beta releases")
+	betaCheck.Connect("toggled", func() {
+		betaUpdate = betaCheck.GetActive()
+	})
 	gnrl.Add(wineLbl)
 	gnrl.Add(dlWine)
 	gnrl.Add(pthdCheck)
 	gnrl.Add(wineCheck)
-	gnrl.Add(versCheck)
 	gnrl.Add(paDirsCheck)
 	gnrl.Add(betaCheck)
 	ntbk.AppendPage(gnrl, getLabel("General"))
