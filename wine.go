@@ -48,7 +48,7 @@ func downloadWine(parent *gtk.Window, cb chan bool) {
 		}
 		defer wineTar.Close()
 		check := http.Client{
-			CheckRedirect: func(r *http.Request, via []*http.Request) error {
+			CheckRedirect: func(r *http.Request, _ []*http.Request) error {
 				r.URL.Opaque = r.URL.Path
 				return nil
 			},

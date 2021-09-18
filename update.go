@@ -32,7 +32,7 @@ func versionDL() (bool, error) {
 	}
 	versionFile.Chmod(0777)
 	check := http.Client{
-		CheckRedirect: func(r *http.Request, via []*http.Request) error {
+		CheckRedirect: func(r *http.Request, _ []*http.Request) error {
 			r.URL.Opaque = r.URL.Path
 			return nil
 		},
@@ -68,7 +68,7 @@ func changelogDL() (bool, error) {
 	}
 	changelogFile.Chmod(0777)
 	check := http.Client{
-		CheckRedirect: func(r *http.Request, via []*http.Request) error {
+		CheckRedirect: func(r *http.Request, _ []*http.Request) error {
 			r.URL.Opaque = r.URL.Path
 			return nil
 		},
@@ -141,7 +141,7 @@ func downloadUpdate(newVersion string) (bool, error) {
 		return false, err
 	}
 	check := http.Client{
-		CheckRedirect: func(r *http.Request, via []*http.Request) error {
+		CheckRedirect: func(r *http.Request, _ []*http.Request) error {
 			r.URL.Opaque = r.URL.Path
 			return nil
 		},
