@@ -7,9 +7,13 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+var (
+	fyneApp fyne.App
+)
+
 func main() {
-	app := app.New()
-	win := app.NewWindow("LinuxPA")
+	fyneApp = app.New()
+	win := fyneApp.NewWindow("LinuxPA")
 	win.SetContent(container.NewVBox(widget.NewLabel("HII"), widget.NewLabel("PPOOOP")))
 	win.Resize(fyne.NewSize(512, 512))
 	win.ShowAndRun()

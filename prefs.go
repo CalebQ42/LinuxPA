@@ -8,4 +8,5 @@ var (
 	firejail             bool
 	createAppImageConfig bool
 	createAppImageHome   bool
+	verbose              bool
 )
