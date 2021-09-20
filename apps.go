@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 )
 
@@ -25,7 +26,11 @@ func processApps() error {
 	for i := range dirs {
 		portable, err = processPortableApp(dirs[i])
 		if err != nil {
-			return err
+			if verbose {
+				log.Println("Error while processing", dirs[i].Name(), ":", err)
+				log.Println("Ignoring")
+			}
+			continue
 		}
 		if portable != nil {
 			apps = append(apps, portable)

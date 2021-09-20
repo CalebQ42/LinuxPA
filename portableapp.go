@@ -4,6 +4,7 @@ import (
 	"debug/elf"
 	"io"
 	"io/fs"
+	"log"
 	"os"
 	"strings"
 
@@ -33,6 +34,10 @@ func processPortableApp(root fs.DirEntry) (*portableApp, error) {
 		}
 		err = setExecPermissions("PortableApps/" + pa.root)
 		if err != nil {
+			if verbose {
+				log.Println("Can't set exec permissions for", root.Name(), ":", err)
+				log.Println("Ignoring")
+			}
 			return nil, err
 		}
 		pa.name = appimage.Name
@@ -79,6 +84,10 @@ func processPortableApp(root fs.DirEntry) (*portableApp, error) {
 		if string(maybeShebang) == "#!" {
 			err = setExecPermissions(filename)
 			if err != nil {
+				if verbose {
+					log.Println("Can't set exec permissions for", dirs[i].Name(), ":", err)
+					log.Println("Ignoring")
+				}
 				continue
 			}
 			pa.execs = append(pa.execs, dirs[i].Name())
@@ -103,6 +112,10 @@ func processPortableApp(root fs.DirEntry) (*portableApp, error) {
 		}
 		err = setExecPermissions(filename)
 		if err != nil {
+			if verbose {
+				log.Println("Can't set exec permissions for", dirs[i].Name(), ":", err)
+				log.Println("Ignoring")
+			}
 			continue
 		}
 		pa.execs = append(pa.execs, dirs[i].Name())
@@ -114,7 +127,11 @@ func processPortableApp(root fs.DirEntry) (*portableApp, error) {
 }
 
 func (pa *portableApp) buildUI() fyne.CanvasObject {
-	return widget.NewLabel(pa.name)
+	item := make([]*widget.AccordionItem, 0)
+	for _, e := range pa.execs {
+		item = append(item, widget.NewAccordionItem(e, nil))
+	}
+	return widget.NewAccordion(item...)
 }
 
 func setExecPermissions(file string) error {
