@@ -29,6 +29,7 @@ func processPortableApp(root fs.DirEntry) (*portableApp, error) {
 		}
 		pa.appimage = e.ai
 		pa.name = e.name
+		//TODO get icon
 		return &pa, nil
 	}
 	pa.name = root.Name()
