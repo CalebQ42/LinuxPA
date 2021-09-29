@@ -21,6 +21,8 @@ github.com/CalebQ42/GoAppImage v0.5.0/go.mod h1:qHudJKAn/dlkNWNnH4h1YKXp29EZ7Bpp
 github.com/CalebQ42/squashfs v0.5.0/go.mod h1:odzrLJgn0aKn2+xOsCH97c81DU/xZfTzeFBqV5ob2g4=
 github.com/CalebQ42/squashfs v0.5.1 h1:0IiIwCq9NO3RPi/B/hLfkerxiULHorWBdp08yVqzNSw=
 github.com/CalebQ42/squashfs v0.5.1/go.mod h1:odzrLJgn0aKn2+xOsCH97c81DU/xZfTzeFBqV5ob2g4=
+github.com/CalebQ42/squashfs v0.5.2 h1:bPO3RJ9LyjRDbY1lVQg+PJOWeelezvP3RATTbmWYLxk=
+github.com/CalebQ42/squashfs v0.5.2/go.mod h1:odzrLJgn0aKn2+xOsCH97c81DU/xZfTzeFBqV5ob2g4=
 github.com/Kodeworks/golang-image-ico v0.0.0-20141118225523-73f0f4cfade9/go.mod h1:7uhhqiBaR4CpN0k9rMjOtjpcfGd6DG2m04zQxKnWQ0I=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9SBzvHz7e8=

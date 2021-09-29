@@ -42,6 +42,10 @@ func ParseExe(file string) (out exe, err error) {
 	if err != nil {
 		return
 	}
+	stat, _ := exeFil.Stat()
+	if stat.IsDir() {
+		return out, errors.New("folder can't be executable")
+	}
 	//Check for a shebang (#!). If present, file is a script.
 	shebangCheck := make([]byte, 2)
 	_, err = exeFil.Read(shebangCheck)
