@@ -1,6 +1,8 @@
 github.com/CalebQ42/GoAppImage v0.5.0 h1:znoKNXtliH754tS9sYwyOIg/0wFDjFN5Twc7PAh1rSM=
 github.com/CalebQ42/squashfs v0.5.0 h1:xYbWL9km1D/PeZhAYycdOZMZahrZbF/LeMDAX1MVKB4=
 github.com/CalebQ42/squashfs v0.5.0/go.mod h1:odzrLJgn0aKn2+xOsCH97c81DU/xZfTzeFBqV5ob2g4=
+github.com/CalebQ42/squashfs v0.5.2 h1:bPO3RJ9LyjRDbY1lVQg+PJOWeelezvP3RATTbmWYLxk=
+github.com/CalebQ42/squashfs v0.5.2/go.mod h1:odzrLJgn0aKn2+xOsCH97c81DU/xZfTzeFBqV5ob2g4=
 github.com/adrg/xdg v0.3.4 h1:0BivHfQ0LSGQrFTaEZ0hyQLm/HAidci7m+1cT6wKKdA=
 github.com/adrg/xdg v0.3.4/go.mod h1:61xAR2VZcggl2St4O9ohF5qCKe08+JDmE4VNzPFQvOQ=
 github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 h1:uSoVVbwJiQipAclBbw+8quDsfcvFjOpI5iCf4p/cqCs=

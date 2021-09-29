@@ -5,7 +5,7 @@ go 1.17
 require github.com/probonopd/go-appimage v0.0.0-20210922190000-f8d61d993f52
 
 require (
-	github.com/CalebQ42/squashfs v0.5.0 // indirect
+	github.com/CalebQ42/squashfs v0.5.2 // indirect
 	github.com/adrg/xdg v0.3.4 // indirect
 	github.com/alokmenghrajani/gpgeez v0.0.0-20161206084504-1a06f1c582f9 // indirect
 	github.com/eclipse/paho.mqtt.golang v1.3.5 // indirect

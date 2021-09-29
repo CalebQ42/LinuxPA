@@ -1,4 +1,12 @@
 #!/bin/bash
 
-export HOME=$PWD/PortableApps/LinuxPACom/Home
+#Special variables:
+#$ROOT = directory LinuxPA is.
+#$APPNAME = name of the launched app
+#$FILENAME = name of the launched file
+
+export HOME=$ROOT/PortableApps/LinuxPACom/Home
 export XDG_CONFIG_HOME=$HOME/.config
+
+#Run the app. DON'T TOUCH (unless you know what your doing :P)
+$@
