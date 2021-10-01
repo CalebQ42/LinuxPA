@@ -21,6 +21,7 @@ type preferences struct {
 	fromRoot        bool
 	disableCommonSh bool
 	beta            bool
+	apimgDirs       bool
 }
 
 func loadPrefs() error {
@@ -79,7 +80,7 @@ func loadOldPrefs() error {
 	if err != nil {
 		return nil
 	}
-	//paDirs
+	prefs.apimgDirs = *tmpBool
 	err = d.Decode(tmpBool)
 	if err != nil {
 		return nil

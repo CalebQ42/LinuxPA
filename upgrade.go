@@ -19,7 +19,14 @@ func upgrade() error {
 			return err
 		}
 	}
-	//TODO: parse old settings and write them as new settings.
+	err = loadOldPrefs()
+	if err != nil {
+		return err
+	}
+	err = savePrefs()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

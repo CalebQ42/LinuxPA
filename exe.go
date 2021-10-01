@@ -90,7 +90,7 @@ func (e exe) Cmd() (cmd *exec.Cmd) {
 	} else {
 		cmd = exec.Command(e.path)
 	}
-	if !fromRoot {
+	if !prefs.fromRoot {
 		cmd.Dir = path.Dir(e.path)
 	}
 	return

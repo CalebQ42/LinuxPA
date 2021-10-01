@@ -14,7 +14,15 @@ var (
 )
 
 func main() {
-	err := loadPrefs()
+	//detect v2 via old preference format
+	_, err := os.Open(oldPrefs)
+	if err == nil {
+		err = upgrade()
+		if err != nil {
+			log.Fatal("Can't upgrade from v2 to v3. Aborting:", err)
+		}
+	}
+	err = loadPrefs()
 	if err != nil && !os.IsNotExist(err) {
 		log.Fatal("Can't load preferences:", err)
 	}

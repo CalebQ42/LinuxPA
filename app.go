@@ -51,7 +51,7 @@ func ProcessApp(dir string) ([]*app, error) {
 		if err != nil {
 			iconRdr, err = ai.Thumbnail()
 			if err != nil {
-				if verbose {
+				if prefs.verbose {
 					log.Println("Can't get icon for", a.name, ":", err)
 				}
 				return []*app{&a}, nil
@@ -61,7 +61,7 @@ func ProcessApp(dir string) ([]*app, error) {
 		buf := new(bytes.Buffer)
 		_, err = io.Copy(buf, iconRdr)
 		if err != nil {
-			if verbose {
+			if prefs.verbose {
 				log.Println("Can't get icon for", a.name, ":", err)
 			}
 			return []*app{&a}, nil
@@ -85,14 +85,15 @@ func ProcessApp(dir string) ([]*app, error) {
 		}
 		e, err = ProcessExe(path.Join(dir, dirs[i].Name()))
 		if err != nil {
-			if verbose {
+			if prefs.verbose {
 				log.Println(path.Join(dir, dirs[i].Name()), "is not an executable. Ignoring...")
 			}
 			continue
 		}
-		if !allowWine && e.IsWine() {
-			a.execs = append(a.execs, e)
+		if prefs.hideWine && e.IsWine() {
+			continue
 		}
+		a.execs = append(a.execs, e)
 	}
 	if len(a.execs) == 0 {
 		return nil, errors.New("application folder contains no executables")
@@ -106,7 +107,7 @@ func ProcessApp(dir string) ([]*app, error) {
 		var deskFil *os.File
 		deskFil, err = os.Open(path.Join(dir, d))
 		if err != nil {
-			if verbose {
+			if prefs.verbose {
 				log.Println("Error while opening desktop file", path.Join(dir, d), ":", err)
 				log.Println("Ignoring...")
 			}
@@ -115,7 +116,7 @@ func ProcessApp(dir string) ([]*app, error) {
 		var desktopApp app
 		desktopApp.desktop, err = ini.Load(deskFil)
 		if err != nil {
-			if verbose {
+			if prefs.verbose {
 				log.Println("Error while processing desktop file", path.Join(dir, d), ":", err)
 				log.Println("Ignoring...")
 			}
@@ -123,7 +124,7 @@ func ProcessApp(dir string) ([]*app, error) {
 		}
 		exec := desktopApp.desktop.Section("DesktopEntry").Key("Exec").String()
 		if exec == "" {
-			if verbose {
+			if prefs.verbose {
 				log.Println("Desktop file", path.Join(dir, d), "does not have an Exec key. Ignoring...")
 			}
 			continue
@@ -176,7 +177,7 @@ func ProcessAllApps() {
 		var a []*app
 		a, err = ProcessApp("PortableApps/" + dirs[i].Name())
 		if err != nil {
-			if verbose {
+			if prefs.verbose {
 				log.Println("Error while processing", dirs[i].Name(), ":", err)
 				log.Println("Ignoring...")
 			}
