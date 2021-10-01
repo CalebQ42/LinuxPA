@@ -16,7 +16,9 @@ import (
 type exe struct {
 	path     string
 	name     string
+	args     string //Obtained from .desktop files
 	appimage bool
+	script   bool
 }
 
 func ProcessExe(file string) (exe, error) {
@@ -52,6 +54,7 @@ func ProcessExe(file string) (exe, error) {
 		return e, e.CheckSetExec()
 	}
 	if bytes.Equal(check, []byte("#!")) {
+		e.script = true
 		return e, e.CheckSetExec()
 	}
 	//Then we check if the file is an ELF file that's executable
