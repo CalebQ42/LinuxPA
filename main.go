@@ -2,6 +2,8 @@ package main
 
 import (
 	"embed"
+	"log"
+	"os"
 )
 
 var (
@@ -12,4 +14,8 @@ var (
 )
 
 func main() {
+	err := loadPrefs()
+	if err != nil && !os.IsNotExist(err) {
+		log.Fatal("Can't load preferences:", err)
+	}
 }

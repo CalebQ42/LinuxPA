@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Special variables:
-#$ROOT = directory LinuxPA is.
+#$ROOT = directory where LinuxPA is
 #$APPNAME = name of the launched app
 #$FILENAME = name of the launched file
 
