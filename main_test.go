@@ -32,6 +32,5 @@ func TestProcessing(t *testing.T) {
 			log.Fatal(err)
 		}
 	}
-	ProcessAllApps()
 	//TODO: compare apps vs expected
 }

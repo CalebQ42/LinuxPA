@@ -1,4 +1,4 @@
-package main
+package apps
 
 import (
 	"bytes"
@@ -10,30 +10,31 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/CalebQ42/LinuxPA/internal/prefs"
 	"github.com/probonopd/go-appimage/src/goappimage"
 	"gopkg.in/ini.v1"
 )
 
-type app struct {
-	desktop    *ini.File
-	name       string
-	path       string
-	categories []string
-	icon       []byte
-	execs      []exe
-	appimage   bool
+type App struct {
+	Desktop    *ini.File
+	Name       string
+	Path       string
+	Categories []string
+	Icon       []byte
+	Execs      []Exe
+	AppImage   bool
 }
 
-func ProcessApp(dir string) ([]*app, error) {
-	var a app
+func ProcessApp(p *prefs.Prefs, dir string) ([]*App, error) {
+	var a App
 	dirFil, err := os.Open(dir)
 	if err != nil {
 		return nil, err
 	}
-	a.path = dir
+	a.Path = dir
 	stat, _ := dirFil.Stat()
 	if !stat.IsDir() {
-		var e exe
+		var e Exe
 		e, err = ProcessExe(dir)
 		if err != nil {
 			return nil, err
@@ -41,40 +42,40 @@ func ProcessApp(dir string) ([]*app, error) {
 		if !e.appimage {
 			return nil, errors.New("file not in application folder and not AppImage")
 		}
-		a.appimage = true
-		a.execs = append(a.execs, e)
+		a.AppImage = true
+		a.Execs = append(a.Execs, e)
 		ai, _ := goappimage.NewAppImage(dir)
-		a.name = ai.Name
-		a.categories = strings.Split(ai.Desktop.Section("Desktop Entry").Key("Categories").String(), "；")
+		a.Name = ai.Name
+		a.Categories = strings.Split(ai.Desktop.Section("Desktop Entry").Key("Categories").String(), "；")
 		var iconRdr io.ReadCloser
 		iconRdr, _, err = ai.Icon()
 		if err != nil {
 			iconRdr, err = ai.Thumbnail()
 			if err != nil {
-				if prefs.verbose {
-					log.Println("Can't get icon for", a.name, ":", err)
+				if p.Verbose {
+					log.Println("Can't get icon for", a.Name, ":", err)
 				}
-				return []*app{&a}, nil
+				return []*App{&a}, nil
 			}
 		}
 		defer iconRdr.Close()
 		buf := new(bytes.Buffer)
 		_, err = io.Copy(buf, iconRdr)
 		if err != nil {
-			if prefs.verbose {
-				log.Println("Can't get icon for", a.name, ":", err)
+			if p.Verbose {
+				log.Println("Can't get icon for", a.Name, ":", err)
 			}
-			return []*app{&a}, nil
+			return []*App{&a}, nil
 		}
-		a.icon = buf.Bytes()
-		return []*app{&a}, nil
+		a.Icon = buf.Bytes()
+		return []*App{&a}, nil
 	}
 	dirs, err := dirFil.ReadDir(0)
 	if err != nil {
 		return nil, err
 	}
 	var desktopFiles []string
-	var e exe
+	var e Exe
 	for i := range dirs {
 		if dirs[i].IsDir() {
 			continue
@@ -85,46 +86,43 @@ func ProcessApp(dir string) ([]*app, error) {
 		}
 		e, err = ProcessExe(path.Join(dir, dirs[i].Name()))
 		if err != nil {
-			if prefs.verbose {
+			if p.Verbose {
 				log.Println(path.Join(dir, dirs[i].Name()), "is not an executable. Ignoring...")
 			}
 			continue
 		}
-		if prefs.hideWine && e.IsWine() {
-			continue
-		}
-		a.execs = append(a.execs, e)
+		a.Execs = append(a.Execs, e)
 	}
-	if len(a.execs) == 0 {
+	if len(a.Execs) == 0 {
 		return nil, errors.New("application folder contains no executables")
 	}
 	a.orderExecs()
 	if len(desktopFiles) == 0 {
-		return []*app{&a}, nil
+		return []*App{&a}, nil
 	}
-	var out []*app
+	var out []*App
 	for _, d := range desktopFiles {
 		var deskFil *os.File
 		deskFil, err = os.Open(path.Join(dir, d))
 		if err != nil {
-			if prefs.verbose {
+			if p.Verbose {
 				log.Println("Error while opening desktop file", path.Join(dir, d), ":", err)
 				log.Println("Ignoring...")
 			}
 			continue
 		}
-		var desktopApp app
-		desktopApp.desktop, err = ini.Load(deskFil)
+		var desktopApp App
+		desktopApp.Desktop, err = ini.Load(deskFil)
 		if err != nil {
-			if prefs.verbose {
+			if p.Verbose {
 				log.Println("Error while processing desktop file", path.Join(dir, d), ":", err)
 				log.Println("Ignoring...")
 			}
 			continue
 		}
-		exec := desktopApp.desktop.Section("DesktopEntry").Key("Exec").String()
+		exec := desktopApp.Desktop.Section("DesktopEntry").Key("Exec").String()
 		if exec == "" {
-			if prefs.verbose {
+			if p.Verbose {
 				log.Println("Desktop file", path.Join(dir, d), "does not have an Exec key. Ignoring...")
 			}
 			continue
@@ -140,21 +138,21 @@ func ProcessApp(dir string) ([]*app, error) {
 		}
 		args = strings.TrimSpace(args)
 		//TODO
-		desktopApp.name = desktopApp.desktop.Section("Desktop Entry").Key("Name").String()
-		desktopApp.categories = strings.Split(desktopApp.desktop.Section("Desktop Entry").Key("Categories").String(), "；")
+		desktopApp.Name = desktopApp.Desktop.Section("Desktop Entry").Key("Name").String()
+		desktopApp.Categories = strings.Split(desktopApp.Desktop.Section("Desktop Entry").Key("Categories").String(), "；")
 
 	}
 	if len(out) == 0 {
-		return []*app{&a}, nil
+		return []*App{&a}, nil
 	}
 	//TODO: Process information from PortableApps.com format and, if not there, any AppImages present.
 	//TODO: Process any .desktop files as a new app (if there are multiple)
 	return out, nil
 }
 
-func (a *app) orderExecs() {
-	var scripts, appimages, linExecs, wine []exe
-	for _, e := range a.execs {
+func (a *App) orderExecs() {
+	var scripts, appimages, linExecs, wine []Exe
+	for _, e := range a.Execs {
 		if e.script {
 			scripts = append(scripts, e)
 		} else if e.appimage {
@@ -165,27 +163,28 @@ func (a *app) orderExecs() {
 			linExecs = append(linExecs, e)
 		}
 	}
-	a.execs = append(append(append(scripts, appimages...), linExecs...), wine...)
+	a.Execs = append(append(append(scripts, appimages...), linExecs...), wine...)
 }
 
-func ProcessAllApps() {
+func ProcessAllApps(p *prefs.Prefs) (a []*App, err error) {
 	dirs, err := os.ReadDir("PortableApps")
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 	for i := range dirs {
-		var a []*app
-		a, err = ProcessApp("PortableApps/" + dirs[i].Name())
+		var tmp []*App
+		tmp, err = ProcessApp(p, "PortableApps/"+dirs[i].Name())
 		if err != nil {
-			if prefs.verbose {
+			if p.Verbose {
 				log.Println("Error while processing", dirs[i].Name(), ":", err)
 				log.Println("Ignoring...")
 			}
 			continue
 		}
-		apps = append(apps, a...)
+		a = append(a, tmp...)
 	}
-	sort.Slice(apps, func(i, j int) bool {
-		return apps[i].name < apps[j].name
+	sort.Slice(a, func(i, j int) bool {
+		return a[i].Name < a[j].Name
 	})
+	return
 }

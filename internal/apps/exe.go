@@ -1,4 +1,4 @@
-package main
+package apps
 
 import (
 	"bytes"
@@ -13,7 +13,7 @@ import (
 	"github.com/probonopd/go-appimage/src/goappimage"
 )
 
-type exe struct {
+type Exe struct {
 	path     string
 	name     string
 	args     string //Obtained from .desktop files
@@ -21,9 +21,9 @@ type exe struct {
 	script   bool
 }
 
-func ProcessExe(file string) (exe, error) {
+func ProcessExe(file string) (Exe, error) {
 	var err error
-	var e exe
+	var e Exe
 	if !path.IsAbs(file) {
 		var wd string
 		wd, err = os.Getwd()
@@ -71,11 +71,11 @@ func ProcessExe(file string) (exe, error) {
 	return e, nil
 }
 
-func (e exe) IsWine() bool {
+func (e Exe) IsWine() bool {
 	return strings.HasSuffix(e.path, ".exe")
 }
 
-func (e exe) Cmd() (cmd *exec.Cmd) {
+func (e Exe) Cmd(commonSh string, fromRoot bool) (cmd *exec.Cmd) {
 	if commonSh != "" {
 		cmd = exec.Command(commonSh)
 		if e.IsWine() {
@@ -83,27 +83,28 @@ func (e exe) Cmd() (cmd *exec.Cmd) {
 		}
 		cmd.Args = append(cmd.Args, e.path)
 		env := os.Environ()
-		env = append(env, "APPNAME="+e.name, "FILENAME="+e.path)
+		wd, _ := os.Getwd()
+		env = append(env, "ROOT="+wd, "APPNAME="+e.name, "FILENAME="+e.path)
 		cmd.Env = env
 	} else if e.IsWine() {
 		cmd = exec.Command("wine", e.path)
 	} else {
 		cmd = exec.Command(e.path)
 	}
-	if !prefs.fromRoot {
+	if !fromRoot {
 		cmd.Dir = path.Dir(e.path)
 	}
 	return
 }
 
-func (e exe) CheckSetExec() error {
+func (e Exe) CheckSetExec() error {
 	if e.HasExecPerm() {
 		return nil
 	}
 	return e.SetExecPerm()
 }
 
-func (e exe) HasExecPerm() bool {
+func (e Exe) HasExecPerm() bool {
 	stat, err := os.Stat(e.path)
 	if err != nil {
 		return false
@@ -127,7 +128,7 @@ func (e exe) HasExecPerm() bool {
 	return perm&0001 == 0001
 }
 
-func (e exe) SetExecPerm() error {
+func (e Exe) SetExecPerm() error {
 	stat, err := os.Stat(e.path)
 	if err != nil {
 		return err

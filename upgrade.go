@@ -19,11 +19,7 @@ func upgrade() error {
 			return err
 		}
 	}
-	err = loadOldPrefs()
-	if err != nil {
-		return err
-	}
-	err = savePrefs()
+	err = p.SavePrefs()
 	if err != nil {
 		return err
 	}

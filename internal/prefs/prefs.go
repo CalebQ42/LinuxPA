@@ -1,4 +1,4 @@
-package main
+package prefs
 
 import (
 	"encoding/gob"
@@ -9,33 +9,34 @@ import (
 const (
 	prefsLoc = "PortableApps/LinuxPACom/preferences.json"
 	oldPrefs = "PortableApps/LinuxPACom/Prefs.gob"
-	commonSh = "PortableApps/LinuxPACom/common.sh"
 )
 
-var prefs preferences
-
-type preferences struct {
-	verbose         bool
-	hideWine        bool
-	showPortable    bool
-	fromRoot        bool
-	disableCommonSh bool
-	beta            bool
-	apimgDirs       bool
+type Prefs struct {
+	Verbose         bool
+	HideWine        bool
+	ShowPortable    bool
+	FromRoot        bool
+	DisableCommonSh bool
+	Beta            bool
+	AppImageDirs    bool
 }
 
-func loadPrefs() error {
-	jsonFil, err := os.Open(prefsLoc)
+func LoadPrefs() (p *Prefs, err error) {
+	jsonFil, err := os.Open(prefsLoc + ".bak")
 	if err != nil {
-		return err
+		jsonFil, err = os.Open(prefsLoc)
+		if err != nil {
+			return
+		}
 	}
+	p = new(Prefs)
 	defer jsonFil.Close()
 	d := json.NewDecoder(jsonFil)
-	err = d.Decode(&prefs)
-	return err
+	err = d.Decode(p)
+	return
 }
 
-func savePrefs() error {
+func (p *Prefs) SavePrefs() error {
 	os.Rename(prefsLoc, prefsLoc+".bak")
 	jsonFil, err := os.Create(prefsLoc)
 	if err != nil {
@@ -43,7 +44,7 @@ func savePrefs() error {
 	}
 	defer jsonFil.Close()
 	e := json.NewEncoder(jsonFil)
-	err = e.Encode(&prefs)
+	err = e.Encode(&p)
 	if err != nil {
 		os.Remove(prefsLoc)
 		os.Rename(prefsLoc+".bak", prefsLoc)
@@ -53,38 +54,39 @@ func savePrefs() error {
 	return err
 }
 
-func loadOldPrefs() error {
+func LoadOldPrefs() (p *Prefs, err error) {
 	prefsFil, err := os.Open(oldPrefs)
 	if err != nil {
-		return err
+		return
 	}
+	p = new(Prefs)
 	defer prefsFil.Close()
 	d := gob.NewDecoder(prefsFil)
 	tmpBool := new(bool)
 	err = d.Decode(tmpBool)
 	if err != nil {
-		return nil
+		return
 	}
-	prefs.hideWine = !*tmpBool
+	p.HideWine = !*tmpBool
 	err = d.Decode(tmpBool)
 	if err != nil {
-		return nil
+		return
 	}
-	prefs.showPortable = !*tmpBool
+	p.ShowPortable = !*tmpBool
 	err = d.Decode(tmpBool)
 	if err != nil {
-		return nil
+		return
 	}
 	//versionNewest
 	err = d.Decode(tmpBool)
 	if err != nil {
-		return nil
+		return
 	}
-	prefs.apimgDirs = *tmpBool
+	p.AppImageDirs = *tmpBool
 	err = d.Decode(tmpBool)
 	if err != nil {
-		return nil
+		return
 	}
-	prefs.beta = !*tmpBool
-	return nil
+	p.Beta = !*tmpBool
+	return
 }
