@@ -23,7 +23,8 @@ var (
 
 func main() {
 	//detect v2 via old preference format
-	p, err := prefs.LoadOldPrefs()
+	var err error
+	p, err = prefs.LoadOldPrefs()
 	if err == nil {
 		err = upgrade()
 		if err != nil {
@@ -35,7 +36,7 @@ func main() {
 			log.Fatal("Can't load preferences:", err)
 		}
 	}
-	a, err := apps.ProcessAllApps(p)
+	a, err = apps.ProcessAllApps(p)
 	if err != nil {
 		if err != nil {
 			log.Fatal("Can't read/process apps:", err)
