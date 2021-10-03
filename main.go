@@ -22,6 +22,12 @@ var (
 )
 
 func main() {
+	initialize()
+	//TODO: show UI
+	go checkUpdate()
+}
+
+func initialize() {
 	//detect v2 via old preference format
 	var err error
 	p, err = prefs.LoadOldPrefs()
@@ -44,7 +50,4 @@ func main() {
 	}
 	_ = a
 	//TODO: check for wine. If not installed, disable showWine
-	//TODO: load apps
-	//TODO: show UI
-	//TODO: Check for updates
 }
