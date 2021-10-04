@@ -35,8 +35,8 @@ func ProcessExe(file string) (Exe, error) {
 	file = path.Clean(file)
 	e.path = file
 	e.name = path.Base(file)
-	if strings.Contains(file, ".") {
-		e.name = e.name[:strings.LastIndex(file, ".")]
+	if strings.Contains(e.name, ".") {
+		e.name = e.name[:strings.LastIndex(e.name, ".")]
 	}
 	//Check if file exists/is openable
 	fil, err := os.Open(file)
@@ -71,15 +71,29 @@ func ProcessExe(file string) (Exe, error) {
 	return e, nil
 }
 
+func (e Exe) String() string {
+	out := "Executable: " + e.name + " at path: " + e.path
+	if e.args != "" {
+		out += " has args: \"" + e.args + "\""
+	}
+	if e.appimage {
+		out += " is appimage"
+	}
+	if e.script {
+		out += " is script"
+	}
+	return out
+}
+
 func (e Exe) IsWine() bool {
 	return strings.HasSuffix(e.path, ".exe")
 }
 
-func (e Exe) Cmd(commonSh string, fromRoot bool) (cmd *exec.Cmd) {
+func (e Exe) Cmd(commonSh, wine string, fromRoot bool) (cmd *exec.Cmd) {
 	if commonSh != "" {
 		cmd = exec.Command(commonSh)
 		if e.IsWine() {
-			cmd.Args = append(cmd.Args, "wine")
+			cmd.Args = append(cmd.Args, wine)
 		}
 		cmd.Args = append(cmd.Args, e.path)
 		env := os.Environ()
@@ -87,13 +101,14 @@ func (e Exe) Cmd(commonSh string, fromRoot bool) (cmd *exec.Cmd) {
 		env = append(env, "ROOT="+wd, "APPNAME="+e.name, "FILENAME="+e.path)
 		cmd.Env = env
 	} else if e.IsWine() {
-		cmd = exec.Command("wine", e.path)
+		cmd = exec.Command(wine, e.path)
 	} else {
 		cmd = exec.Command(e.path)
 	}
 	if !fromRoot {
 		cmd.Dir = path.Dir(e.path)
 	}
+	cmd.Args = append(cmd.Args, strings.Split(e.args, " ")...)
 	return
 }
 

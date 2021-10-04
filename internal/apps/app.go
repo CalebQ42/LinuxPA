@@ -32,6 +32,7 @@ func ProcessApp(p *prefs.Prefs, dir string) ([]*App, error) {
 		return nil, err
 	}
 	a.Path = dir
+	a.Name = path.Base(dir)
 	stat, _ := dirFil.Stat()
 	if !stat.IsDir() {
 		var e Exe
@@ -46,7 +47,11 @@ func ProcessApp(p *prefs.Prefs, dir string) ([]*App, error) {
 		a.Execs = append(a.Execs, e)
 		ai, _ := goappimage.NewAppImage(dir)
 		a.Name = ai.Name
+		a.Desktop = ai.Desktop
 		a.Categories = strings.Split(ai.Desktop.Section("Desktop Entry").Key("Categories").String(), "；")
+		if a.Categories[len(a.Categories)-1] == "" {
+			a.Categories = a.Categories[:len(a.Categories)-1]
+		}
 		var iconRdr io.ReadCloser
 		iconRdr, _, err = ai.Icon()
 		if err != nil {
@@ -63,7 +68,7 @@ func ProcessApp(p *prefs.Prefs, dir string) ([]*App, error) {
 		_, err = io.Copy(buf, iconRdr)
 		if err != nil {
 			if p.Verbose {
-				log.Println("Can't get icon for", a.Name, ":", err)
+				log.Println("Can't get icon for AppImage", a.Name, ":", err)
 			}
 			return []*App{&a}, nil
 		}
@@ -100,6 +105,7 @@ func ProcessApp(p *prefs.Prefs, dir string) ([]*App, error) {
 	if len(desktopFiles) == 0 {
 		return []*App{&a}, nil
 	}
+	//TODO: Process information from PortableApps.com format and, if not there, any AppImages present.
 	var out []*App
 	for _, d := range desktopFiles {
 		var deskFil *os.File
@@ -112,6 +118,7 @@ func ProcessApp(p *prefs.Prefs, dir string) ([]*App, error) {
 			continue
 		}
 		var desktopApp App
+		desktopApp.Path = dir
 		desktopApp.Desktop, err = ini.Load(deskFil)
 		if err != nil {
 			if p.Verbose {
@@ -136,17 +143,35 @@ func ProcessApp(p *prefs.Prefs, dir string) ([]*App, error) {
 			}
 			args += " " + execSplit[i]
 		}
-		args = strings.TrimSpace(args)
-		//TODO
+		_, err := os.Open(path.Join(dir, exec))
+		if err != nil {
+			if p.Verbose {
+				log.Println("Desktop file's Exec key is invalid:", path.Join(dir, exec), ":", err)
+				log.Println("Ignoring...")
+			}
+			continue
+		}
+		e, err := ProcessExe(path.Join(dir, exec))
+		if err != nil {
+			if p.Verbose {
+				log.Println("Error while processing executable:", path.Join(dir, exec), ":", err)
+				log.Println("Ignoring...")
+			}
+			continue
+		}
+		e.args = strings.TrimSpace(args)
 		desktopApp.Name = desktopApp.Desktop.Section("Desktop Entry").Key("Name").String()
 		desktopApp.Categories = strings.Split(desktopApp.Desktop.Section("Desktop Entry").Key("Categories").String(), "；")
-
+		desktopApp.Execs = []Exe{e}
+		//TODO: icon
 	}
 	if len(out) == 0 {
 		return []*App{&a}, nil
 	}
-	//TODO: Process information from PortableApps.com format and, if not there, any AppImages present.
-	//TODO: Process any .desktop files as a new app (if there are multiple)
+	out[1].Execs = append(out[1].Execs, a.Execs...)
+	if len(out[1].Icon) == 0 {
+		out[1].Icon = a.Icon
+	}
 	return out, nil
 }
 
@@ -164,6 +189,31 @@ func (a *App) orderExecs() {
 		}
 	}
 	a.Execs = append(append(append(scripts, appimages...), linExecs...), wine...)
+}
+
+func (a App) String() string {
+	out := "App: " + a.Name + " at: " + a.Path
+	if a.AppImage {
+		out += " Is AppImage"
+	}
+	if len(a.Categories) > 0 {
+		out += " has categories: [" + strings.Join(a.Categories, " ") + "]"
+	}
+	if a.Desktop != nil {
+		out += " Has Desktop File"
+	}
+	if len(a.Icon) > 0 {
+		out += " Has Icon"
+	}
+	out += " With executables ["
+	for i := range a.Execs {
+		if i != 0 {
+			out += " "
+		}
+		out += a.Execs[i].String()
+	}
+	out += "]"
+	return out
 }
 
 func ProcessAllApps(p *prefs.Prefs) (a []*App, err error) {

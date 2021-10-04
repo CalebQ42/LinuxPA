@@ -4,14 +4,16 @@ import (
 	"embed"
 	"log"
 	"os"
+	"os/exec"
 
 	"github.com/CalebQ42/LinuxPA/internal/apps"
 	"github.com/CalebQ42/LinuxPA/internal/prefs"
 )
 
 const (
-	commonSh = "PortableApps/LinuxPACom/common.sh"
-	version  = "3.0.0.0"
+	commonSh  = "PortableApps/LinuxPACom/common.sh"
+	version   = "3.0.0.0"
+	wineDlURL = "https://www.playonlinux.com/wine/binaries/phoenicis/staging-linux-ARCH/PlayOnLinux-wine-VERSION-staging-linux-ARCH.tar.gz"
 )
 
 var (
@@ -19,12 +21,20 @@ var (
 	a []*apps.App
 	//go:embed embed
 	embedFS embed.FS
+
+	winePath = "PortableApps/LinuxPACom/Wine/bin" //if == "", no wine found
 )
 
 func main() {
 	initialize()
 	//TODO: show UI
 	go checkUpdate()
+}
+
+//check if portableapps.com laucher is present (so we can launch it)
+func pacomLauncherPresent() bool {
+	_, err := os.Open("Start.exe")
+	return err == nil
 }
 
 func initialize() {
@@ -48,6 +58,8 @@ func initialize() {
 			log.Fatal("Can't read/process apps:", err)
 		}
 	}
-	_ = a
-	//TODO: check for wine. If not installed, disable showWine
+	_, err = os.Open(winePath)
+	if err != nil {
+		winePath, _ = exec.LookPath("wine")
+	}
 }

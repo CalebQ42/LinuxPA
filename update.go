@@ -82,14 +82,19 @@ func checkUpdate() {
 		}
 		return
 	}
-	showChangelog(newVer, string(dat))
+	showChangelogUI(newVer, string(dat))
 }
 
 //TODO: Add args to make UI
-func showChangelog(ver string, log string) {
-
+func showChangelogUI(ver string, log string) {
+	_ = log
+	//showChangelogUI(log)
+	//onAccept(func (){
+	update(ver)
+	//})
 }
 
+//TOOD: Add args to close all UI
 func update(ver string) error {
 	resp, err := http.DefaultClient.Get("https://github.com/CalebQ42/LinuxPA/releases/download/v" + ver + "/LinuxPA")
 	if err != nil {

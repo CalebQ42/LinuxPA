@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"testing"
 
+	"github.com/CalebQ42/LinuxPA/internal/apps"
+	"github.com/CalebQ42/LinuxPA/internal/prefs"
 	"github.com/CalebQ42/squashfs"
 )
 
@@ -32,5 +35,9 @@ func TestProcessing(t *testing.T) {
 			log.Fatal(err)
 		}
 	}
-	//TODO: compare apps vs expected
+	ap, err := apps.ProcessAllApps(&prefs.Prefs{})
+	for _, a := range ap {
+		fmt.Println(a.String())
+	}
+	t.Fatal(err)
 }
