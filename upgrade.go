@@ -20,6 +20,7 @@ func upgrade() error {
 		if err != nil {
 			return err
 		}
+		com.Sync()
 	}
 	err = p.SavePrefs()
 	if err != nil {
@@ -46,5 +47,6 @@ func createCommonSh() error {
 	if err != nil {
 		return err
 	}
+	comFil.Sync()
 	return nil
 }
