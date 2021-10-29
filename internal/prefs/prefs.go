@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	prefsLoc = "PortableApps/LinuxPACom/preferences.json"
+	prefsLoc = "PortableApps/LinuxPACom/Prefs.json"
 	oldPrefs = "PortableApps/LinuxPACom/Prefs.gob"
 )
 

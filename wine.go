@@ -11,7 +11,7 @@ import (
 	"github.com/mholt/archiver/v3"
 )
 
-func getWine(arch string) error {
+func getWine() error {
 	resp, err := http.DefaultClient.Get("https://darkstorm.tech/LinuxPA/wine")
 	if err != nil {
 		return err
@@ -26,7 +26,7 @@ func getWine(arch string) error {
 	if ver == "" {
 		return errors.New("couldn't get wine version")
 	}
-	wineURL := strings.ReplaceAll(wineDlURL, "ARCH", arch)
+	wineURL := strings.ReplaceAll(wineDlURL, "ARCH", "amd64")
 	wineURL = strings.ReplaceAll(wineURL, "VERSION", ver)
 	resp, err = http.DefaultClient.Get(wineURL)
 	if err != nil {

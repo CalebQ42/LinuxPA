@@ -9,12 +9,14 @@ import (
 func upgrade() error {
 	com, err := os.Open(commonSh)
 	if os.IsNotExist(err) {
-		err = setupCommonSh()
+		err = createCommonSh()
 		if err != nil {
 			return err
 		}
+	} else if err != nil {
+		return err
 	} else {
-		_, err = com.WriteString("\n#Run the app. DON'T TOUCH (unless you know what your doing :P)\n$@")
+		_, err = com.WriteString("\n\n#Run the app. DON'T TOUCH (unless you know what your doing :P)\n$@")
 		if err != nil {
 			return err
 		}
@@ -23,10 +25,11 @@ func upgrade() error {
 	if err != nil {
 		return err
 	}
+	os.Remove("PortableApps/LinuxPACom/Prefs.gob")
 	return nil
 }
 
-func setupCommonSh() error {
+func createCommonSh() error {
 	os.MkdirAll("PortableApps.com/LinuxPACom", 0775)
 	comEmbed, err := embedFS.Open("common.sh")
 	if err != nil {

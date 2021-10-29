@@ -31,12 +31,6 @@ func main() {
 	go checkUpdate()
 }
 
-//check if portableapps.com laucher is present (so we can launch it)
-func pacomLauncherPresent() bool {
-	_, err := os.Open("Start.exe")
-	return err == nil
-}
-
 func initialize() {
 	//detect v2 via old preference format
 	var err error
