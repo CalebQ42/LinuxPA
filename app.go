@@ -31,6 +31,24 @@ type App struct {
 	// Image []byte TODO
 }
 
+func ProcessAppImage(fil string) (*App, error) {
+	ai, err := goappimage.NewAppImage(fil)
+	if err != nil {
+		return nil, err
+	}
+	app := App{
+		Name: ai.Name,
+		// Image: ,
+		Execs: []Exe{
+			{
+				Filename: fil,
+				Type:     AppImage,
+			},
+		},
+	}
+	return &app, nil
+}
+
 func ProcessDir(dir string) (*App, error) {
 	fils, err := os.ReadDir(dir)
 	if err != nil {
