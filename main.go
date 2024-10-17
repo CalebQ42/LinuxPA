@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 
-	"cogentcore.org/core/core"
-	"cogentcore.org/core/events"
+	"gioui.org/app"
 )
 
 const (
@@ -12,11 +12,23 @@ const (
 )
 
 func main() {
-	b := core.NewBody("LinuxPA")
-	core.NewButton(b).
-		SetText("This is a test").
-		OnClick(func(_ events.Event) {
-			fmt.Println("This is a test")
-		})
-	b.RunMainWindow()
+	go func() {
+		w := &app.Window{}
+		if err := ui(w); err != nil {
+			fmt.Println(err)
+		}
+		os.Exit(0)
+	}()
+	app.Main()
+}
+
+func ui(w *app.Window) error {
+	for {
+		switch e := w.Event().(type) {
+		case app.DestroyEvent:
+			return e.Err
+		case app.FrameEvent:
+
+		}
+	}
 }
