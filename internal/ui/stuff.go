@@ -9,24 +9,27 @@ import (
 type Window struct{}
 
 func Test() {
+	rl.SetConfigFlags(rl.FlagWindowResizable | rl.FlagWindowHighdpi | rl.FlagVsyncHint | rl.FlagMsaa4xHint)
 	rl.InitWindow(800, 450, "raylib [core] example - basic window")
-	rl.SetWindowState(rl.FlagWindowResizable | rl.FlagWindowHighdpi | rl.FlagVsyncHint)
-	rl.SetConfigFlags(rl.FlagMsaa4xHint)
 	defer rl.CloseWindow()
-	rl.Scalef(2, 2, 2)
+	rl.SetTargetFPS(60)
 
 	noto := rl.LoadFont("./noto-sans.ttf")
 	txtImg := rl.ImageTextEx(noto, "Hello World!", 50, 0, rl.Black)
-	// rl.ImageResize(txtImg, 450, 200)
 	txt := rl.LoadTextureFromImage(txtImg)
 
 	tmpRect := NewRect(10, 10, 250, 500)
 	tmpRect.SetBorderRadius(25)
+
 	go func() {
 		for {
 			time.Sleep(5 * time.Second)
-			tmpRect.SetSize(200, 400)
+			// tmpRect.SetBorderRadius(0)
+			// tmpRect.SetPosition(100, 100)
+			tmpRect.SetSize(400, 700)
 			time.Sleep(5 * time.Second)
+			// tmpRect.SetBorderRadius(25)
+			// tmpRect.SetPosition(10, 10)
 			tmpRect.SetSize(250, 500)
 		}
 	}()

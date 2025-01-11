@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"fmt"
-	"image"
 	"image/color"
 	"time"
 
@@ -160,7 +158,6 @@ func (r *Rect) Draw() {
 			if curRect.h != r.h {
 				updateTex = true
 			}
-			fmt.Println("h", curRect.h, r.h)
 			if tween.Ended() {
 				r.h = curRect.h
 				delete(r.curTweens, "h")
@@ -172,7 +169,6 @@ func (r *Rect) Draw() {
 			if curRect.w != r.w {
 				updateTex = true
 			}
-			fmt.Println("w", curRect.w, r.w)
 			if tween.Ended() {
 				r.w = curRect.w
 				delete(r.curTweens, "w")
@@ -208,52 +204,57 @@ func (r *Rect) Draw() {
 		// r.tex = rl.LoadTextureFromImage(curRect.buildImage())
 		// rl.UpdateTexture(r.tex, rl.LoadImageColors(curRect.buildImage()))
 		rl.BeginTextureMode(r.tex)
-		rl.UpdateTextureRec(r.tex.Texture, rl.NewRectangle(0, 0, float32(curRect.w), float32(curRect.h)), rl.LoadImageColors(curRect.buildImage()))
+		curRect.drawTexture()
 		rl.EndTextureMode()
 	}
-	rl.DrawTextureEx(r.tex.Texture, rl.NewVector2(float32(curRect.x), float32(curRect.y)), 0, 1, rl.White)
+	rl.DrawTexturePro(r.tex.Texture, rl.NewRectangle(0, 0, float32(curRect.w), float32(curRect.h)), rl.NewRectangle(float32(curRect.x), float32(curRect.y), float32(curRect.w), float32(curRect.h)), rl.NewVector2(0, 0), 0, rl.White)
+	// rl.DrawTextureEx(r.tex.Texture, rl.NewVector2(float32(curRect.x), float32(curRect.y)), 0, 1, rl.White)
 	r.reload = false
 }
 
-func (r Rect) buildImage() *rl.Image {
-	// Create image at 16x resolution then resize down so it looks better
-	img := rl.NewImageFromImage(image.NewAlpha(image.Rect(0, 0, int(r.w), int(r.h))))
+func (r Rect) drawTexture() {
+	rl.ClearBackground(rl.Blank)
 	// Filled areas
 	if r.fillColor != rl.Blank {
-		rl.ImageDrawRectangle(img, r.radius, 0, (r.w - (2 * r.radius)), r.h, r.fillColor)
+		rl.DrawRectangle(r.radius, 0, (r.w - (2 * r.radius)), r.h, r.fillColor)
 		if r.radius > 0 {
-			rl.ImageDrawRectangle(img, (r.w - r.radius), r.radius, r.radius, (r.h - (2 * r.radius)), r.fillColor)
-			rl.ImageDrawRectangle(img, 0, r.radius, r.radius, (r.h - (2 * r.radius)), r.fillColor)
+			rl.DrawRectangle((r.w - r.radius), r.radius, r.radius, (r.h - (2 * r.radius)), r.fillColor)
+			rl.DrawRectangle(0, r.radius, r.radius, (r.h - (2 * r.radius)), r.fillColor)
 		}
 	}
 
 	if r.borderColor != rl.Blank {
 		// Horizontal lines
-		rl.ImageDrawRectangle(img, r.radius, 0, (r.w - (2 * r.radius)), r.borderWidth, r.borderColor)
-		rl.ImageDrawRectangle(img, r.radius, (r.h)-(r.borderWidth), (r.w - (2 * r.radius)), r.borderWidth, r.borderColor)
+		rl.DrawRectangle(r.radius, 0, (r.w - (2 * r.radius)), r.borderWidth, r.borderColor)
+		rl.DrawRectangle(r.radius, (r.h)-(r.borderWidth), (r.w - (2 * r.radius)), r.borderWidth, r.borderColor)
 		// Vertical lines
-		rl.ImageDrawRectangle(img, 0, r.radius, r.borderWidth, (r.h - (2 * r.radius)), r.borderColor)
-		rl.ImageDrawRectangle(img, (r.w)-(r.borderWidth), r.radius, r.borderWidth, (r.h - (2 * r.radius)), r.borderColor)
+		rl.DrawRectangle(0, r.radius, r.borderWidth, (r.h - (2 * r.radius)), r.borderColor)
+		rl.DrawRectangle((r.w)-(r.borderWidth), r.radius, r.borderWidth, (r.h - (2 * r.radius)), r.borderColor)
 	}
 	if r.radius > 0 {
-		r.placeCorners(r.radius, img)
+		r.placeCorners()
 	}
-	return img
 }
 
-func (r Rect) placeCorners(radius int32, img *rl.Image) {
-	// Setup corner
-	corner := rl.NewImageFromImage(image.NewAlpha(image.Rect(0, 0, int(radius), int(radius))))
+func (r Rect) placeCorners() {
+	//bl
 	if r.borderWidth > 0 {
-		rl.ImageDrawCircle(corner, radius, radius, radius, r.borderColor)
+		rl.DrawRing(rl.NewVector2(float32(r.radius), float32(r.radius)), float32(r.radius-r.borderWidth), float32(r.radius), 180, 270, 20, r.borderColor)
 	}
-	rl.ImageDrawCircle(corner, radius, radius, (radius)-(r.borderWidth), r.fillColor)
-	// Add corners to actual image
-	rl.ImageDraw(img, corner, rl.NewRectangle(0, 0, float32(corner.Width), float32(corner.Height)), rl.NewRectangle(0, 0, float32(corner.Width), float32(corner.Height)), rl.White)
-	rl.ImageRotateCW(corner)
-	rl.ImageDraw(img, corner, rl.NewRectangle(0, 0, float32(corner.Width), float32(corner.Height)), rl.NewRectangle(float32((r.w-radius)), 0, float32(corner.Width), float32(corner.Height)), rl.White)
-	rl.ImageRotateCW(corner)
-	rl.ImageDraw(img, corner, rl.NewRectangle(0, 0, float32(corner.Width), float32(corner.Height)), rl.NewRectangle(float32((r.w-radius)), float32((r.h-radius)), float32(corner.Width), float32(corner.Height)), rl.White)
-	rl.ImageRotateCW(corner)
-	rl.ImageDraw(img, corner, rl.NewRectangle(0, 0, float32(corner.Width), float32(corner.Height)), rl.NewRectangle(0, float32((r.h-radius)), float32(corner.Width), float32(corner.Height)), rl.White)
+	rl.DrawCircleSector(rl.NewVector2(float32(r.radius), float32(r.radius)), float32(r.radius-r.borderWidth), 180, 270, 20, r.fillColor)
+	//tl
+	if r.borderWidth > 0 {
+		rl.DrawRing(rl.NewVector2(float32(r.radius), float32(r.h-r.radius)), float32(r.radius-r.borderWidth), float32(r.radius), 90, 180, 20, r.borderColor)
+	}
+	rl.DrawCircleSector(rl.NewVector2(float32(r.radius), float32(r.h-r.radius)), float32(r.radius-r.borderWidth), 90, 180, 20, r.fillColor)
+	//tr
+	if r.borderWidth > 0 {
+		rl.DrawRing(rl.NewVector2(float32(r.w-r.radius), float32(r.h-r.radius)), float32(r.radius-r.borderWidth), float32(r.radius), 0, 90, 20, r.borderColor)
+	}
+	rl.DrawCircleSector(rl.NewVector2(float32(r.w-r.radius), float32(r.h-r.radius)), float32(r.radius-r.borderWidth), 0, 90, 20, r.fillColor)
+	//br
+	if r.borderWidth > 0 {
+		rl.DrawRing(rl.NewVector2(float32(r.w-r.radius), float32(r.radius)), float32(r.radius-r.borderWidth), float32(r.radius), 270, 360, 20, r.borderColor)
+	}
+	rl.DrawCircleSector(rl.NewVector2(float32(r.w-r.radius), float32(r.radius)), float32(r.radius-r.borderWidth), 270, 360, 20, r.fillColor)
 }
